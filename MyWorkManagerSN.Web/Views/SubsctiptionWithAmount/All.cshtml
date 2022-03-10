@@ -1,0 +1,236 @@
+﻿@model List<MyWorkManagerSN.Model.SubscriptionWithAmount>
+@{
+    ViewBag.Title = "All";
+    string userId = ViewData["userId"] as string;
+}
+
+
+<div class="content-body" style="margin:auto; padding:2% 5% 0 5%">
+
+
+    <h2>Tous les abonnements</h2>
+
+    <div class="">
+        <div class="row">
+            <button type="button" id="addSubscriptionWithAmount" data-acionType="add" class="action btn mb-1 btn-primary" style=" margin-left: 2%;">Ajouter un abonnement</button>
+
+        </div>
+
+        <div style="margin-top: 2%;" class="card">
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table id="myTable" class="table table-bordered table-striped verticle-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Client</th>
+                                <th scope="col">Mobile</th>
+                                <th scope="col">Montant</th>
+                                <th scope="col">Action</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (MyWorkManagerSN.Model.SubscriptionWithAmount sub in Model)
+                            {
+                                <tr>
+                                    @{MyWorkManagerSN.Model.Customer customer = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Customer>().GetById(userId, sub.CustomerId);
+                                        string colorAmount = "#58cf72";
+                                        string prefix = "+";
+                                        if (sub.Amount < 0)
+                                        {
+                                            colorAmount = "red" ;
+                                            prefix = "";
+                                        }
+                                        }
+                                    <td>@customer.Surname @customer.Name</td>
+                                    <td>@customer.Mobile</td>
+                                    <td style="color:@colorAmount">@prefix @sub.Amount @ViewData["devise"]</td>
+
+                                    <td>
+                                        <span> <span data-amount="@sub.Amount"  data-CustomerId="@sub.CustomerId" data-oId="@sub.ID" data-acionType="edit" class="action"><a href="#" data-toggle="tooltip" data-placement="top" title="Modifier"><i class="fa fa-pencil color-muted m-r-5"></i> </a> </span> <span class="supCat" data-oId="@sub.ID"><a href="#" data-toggle="tooltip" data-placement="top" title="Supprimer"><i class="fa fa-close color-danger"></i></a></span></span>
+                                    </td>
+                                </tr>
+                            }
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+    <div class="modal fade" id="exampleModals" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Ajouter un abonnement</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="catForm">
+                        <div class="form-group">
+                            <div id="customerSelector">
+                                <p>Rechercher un client par : </p>
+                                <input type="radio" name="searchType" id="searchType1" value="Prenom_Nom" checked>
+                                <label class="mr-3" for="searchType1">Prénom Nom</label>
+                                <input type="radio" name="searchType" id="searchType2" value="Email">
+                                <label class="mr-3" for="searchType2">Email</label>
+                                <input type="radio" name="searchType" id="searchType3" value="Mobile">
+                                <label class="mr-3" for="searchType3">Mobile</label>
+                            </div>
+                            <br />
+                            <div class="autocomplete" style="display: inline-flex; width: -webkit-fill-available;">
+                                @{ string functionUrl = "GetAllCustomerFromSub";}
+                                <input id="inputAutoComplete" class="form-control input-default" data-controller="Customer" data-method="@functionUrl" type="text" name="myCountry" placeholder="Client" autocomplete="off">
+                                <a id="addNewCustomer" type="button" href="#" class="btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fas fa-plus-circle"></i></a>
+                            </div>
+                            <br />
+
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Montant</label>
+                            <input type="text" class="form-control input-default" id="oAmount" placeholder="Montant" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="submit" id="editModelSubmit" class="btn btn-info">Ajouter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Partial("../Customer/PartialCreateCustomer")
+</div>
+<script type="text/javascript" src="~/Scripts/customJS/createCustomer.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        autocomplete(document.getElementById("inputAutoComplete"), "Prenom_Nom");
+        const buttons = document.querySelectorAll("input[type='radio']");
+        // adding event to all radio buttons
+        buttons.forEach(button => {
+            button.onclick = () => {
+                if (button.checked) {
+                    seachType = button.value;
+                    autocomplete(document.getElementById("inputAutoComplete"), seachType);
+                    $("#inputAutoComplete").val("");
+                }
+            }
+        });
+        $(".action").click(function () {
+            if ($(this).attr("data-acionType") == "edit") {
+                var amount = $(this).attr("data-amount");
+                var customerId = $(this).attr("data-CustomerId");
+                var subId = $(this).attr("data-oId")
+                $.get("/Customer/GetCustomerDetails/" + $(this).attr("data-CustomerId"), function (res) {
+                    if (res.success) {
+                        $("#customerSelector").attr("hidden", true);
+                        $("#ModalLabel").html("Modifier cet abonnemnt");
+                        $("#editModelSubmit").html("Modifier");
+                        $("#editModelSubmit").attr("data-acionType", "edit");
+
+                        $("#inputAutoComplete").val(res._acts.Surname + " " + res._acts.Name);
+                        $("#inputAutoComplete").attr("data-id", customerId);
+                        $("#oAmount").val(amount);
+                        $("#inputAutoComplete").prop('disabled', true);
+                        $("#inputAutoComplete").attr("data-oId", subId);
+                    } else {
+                        toastError("Erreur", res._acts.title);
+                    }
+                    
+                });
+
+                
+
+            } else {
+                $("#customerSelector").attr("hidden", false);
+                $("#ModalLabel").html("Ajouter un abonnement");
+                $("#editModelSubmit").html("Ajouter");
+                $("#editModelSubmit").attr("data-acionType", "add");
+                $("#oAmount").val("");
+                $("#inputAutoComplete").val("");
+                $("#inputAutoComplete").attr("data-id","");
+                $("#inputAutoComplete").prop('disabled', false);
+                $("#editModelSubmit").attr("data-acionType", "add");
+            }
+            $("#exampleModals").modal();
+
+        });
+        $("#editModelSubmit").click(function () {
+            console.log("hellos")
+            $("#catForm").submit();
+
+
+        });
+        $("#catForm").submit(function (event) {
+
+            event.preventDefault();
+            if (document.getElementById('catForm').checkValidity()) {
+                var type = $("#editModelSubmit").attr("data-acionType");
+                var customerId = $("#inputAutoComplete").attr("data-id");
+                var amount = $("#oAmount").val().replace(".", ",");
+                if (type == "add") {
+                    $.post("/SubscriptionWithAmount/Add", { CustomerId: customerId, Amount: amount }, function (res) {
+                        if (res.success) {
+                            toastSuccess("Succès", res._acts.title);
+                            location.reload();
+                        } else {
+                            toastError("Erreur", res._acts.title)
+                        }
+
+                    })
+                } else {
+                    var id = $("#inputAutoComplete").attr("data-oId");
+
+                    $.post("/SubscriptionWithAmount/Update", {Id: id, CustomerId: customerId, Amount: amount }, function (res) {
+                        if (res.success) {
+                            toastSuccess("Succès", res._acts.title)
+                            location.reload();
+
+                        } else {
+
+                            toastError("Erreur", res._acts.title)
+                        }
+
+                    })
+                }
+                $("#exampleModals").modal("hide");
+
+            }
+
+
+        });
+        $(".supCat").click(function () {
+            if (confirm("Vous allez supprimer cet abonnement!")) {
+                console.log("test")
+                var oId = $(this).attr("data-oId");
+                console.log(oId);
+
+                $.post("/SubscriptionWithAmount/Remove", { id: oId }, function (res) {
+                    if (res.success) {
+                        toastSuccess("Succès", res._acts.title)
+                        location.reload();
+                    } else {
+                        console.log(res)
+                        toastError("Erreur", res._acts.title)
+                    }
+
+
+                })
+            }
+
+        });
+
+
+
+    });
+</script>

@@ -1,0 +1,208 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MyWorkManagerSN.Web</title>
+    
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/MyWorkManagerSN.Web.styles.css" asp-append-version="true" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Quixlab - Bootstrap Admin Dashboard Template by Themefisher.com</title>
+
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="~/TemplateQuixLab/images/favicon.png">
+    
+    <link href="~/TemplateQuixLab/plugins/pg-calendar/css/pignose.calendar.min.css" rel="stylesheet">
+    <!-- Chartist -->
+    <link rel="stylesheet" href="~/TemplateQuixLab/plugins/chartist/css/chartist.min.css">
+    <link rel="stylesheet" href="~/TemplateQuixLab/plugins/chartist-plugin-tooltips/css/chartist-plugin-tooltip.css">
+    <!-- Custom Stylesheet-->
+    
+    <link href="~/css/customStyle.css" rel="stylesheet" asp-append-version="true">
+    <link href="~/css/autocomplete.css" rel="stylesheet" asp-append-version="true">
+    <link href="~/css/style.css" rel="stylesheet" asp-append-version="true">
+    
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <link href="~/TemplateQuixLab/plugins/toastr/css/toastr.min.css" rel="stylesheet">
+    <script src="~/js/autocomplete.js" asp-append-version="true"></script> 
+</head>
+<body>
+    <div id="preloader">
+        <div class="loader">
+            <svg class="circular" viewBox="25 25 50 50">
+                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+            </svg>
+        </div>
+    </div>
+    <div id="main-wrapper">
+
+        <!--**********************************
+            Header start
+        ***********************************-->
+        <div class="header">
+            <div class="header-content clearfix">
+
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <div class="nav-control">
+                        <div class="hamburger">
+                            <span class="toggle-icon"><i class="icon-menu"></i></span>
+                        </div>
+                    </div>
+                }
+
+                <div class="header-right">
+                    <ul class="clearfix">
+                        <partial name="_LoginPartial">
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+        <!--**********************************
+            Header end ti-comment-alt
+        ***********************************-->
+        <!--**********************************
+            Nav header start
+        ***********************************-->
+        <div class="nav-header">
+            <div class="brand-logo">
+                <a href="index.html">
+                    <b class="logo-abbr"><img src="~/TemplateQuixLab/images/logo.png" alt=""> </b>
+                    <span class="logo-compact"><img src="~/TemplateQuixLab/images/logo-compact.png" alt=""></span>
+                    <span class="brand-title">
+                        <img src="~/TemplateQuixLab/images/logo-text.png" alt="">
+                    </span>
+                </a>
+            </div>
+        </div>
+        <!--**********************************
+            Nav header end
+        ***********************************-->
+        @if (SignInManager.IsSignedIn(User))
+        {
+
+            <!--**********************************
+                Sidebar start
+            ***********************************-->
+            <div class="nk-sidebar">
+                <div class="nk-nav-scroll">
+                    <ul class="metismenu" id="menu">
+                        <li class="dashbard" data-page="Dashbaoard">
+                            <a class="has-arrow" href="javascript:void(0)" aria-expanded="false">
+                                <i class="icon-speedometer menu-icon"></i><span class="nav-text">Dashboard</span>
+
+                            </a>
+                        </li>
+
+                        <li class="dashbard" data-page="Order">
+                            <a class="has-arrow" href="@Url.Action("All","Order")" aria-expanded="false">
+                                <i class="fa fa-cart-plus"></i><span class="nav-text">Commandes</span>
+                            </a>
+                        </li>
+                        <li class="dashbard" data-page="Product">
+                            <a class="has-arrow" href="@Url.Action("All","Product")" aria-expanded="false">
+                                <i class="fa fa-cubes"></i><span class="nav-text">Produits</span>
+                            </a>
+                        </li>
+                        <li class="dashbard" data-page="Customer">
+                            <a class="has-arrow" href="@Url.Action("All","Customer")" aria-expanded="false">
+                                <i class="fa fa-users"></i><span class="nav-text">Clients</span>
+                            </a>
+                        </li>
+                        <li class="dashbard" data-page="Category">
+                            <a class="has-arrow" href="@Url.Action("All","Category")" aria-expanded="false">
+                                <i class="fa fa-tag"></i><span class="nav-text">Catégories</span>
+                            </a>
+                        </li>
+                        <li class="dashbard" data-page="Category">
+                            <a class="has-arrow" href="@Url.Action("All","SubscriptionWithAmount")" aria-expanded="false">
+                                <i class="fa fa-calendar-check-o"></i><span class="nav-text">Abonnements</span>
+                            </a>
+                        </li>
+                        
+
+
+
+                    </ul>
+                </div>
+            </div>
+            <!--**********************************
+                Sidebar end
+            ***********************************-->
+        }
+        <div class="content-body">
+            @RenderBody()
+            <hr />
+        </div>
+    </div>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+   
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <!--**********************************
+        Scripts
+    ***********************************-->
+
+    <script src="~/TemplateQuixLab/plugins/common/common.min.js" ></script>
+    <script src="~/TemplateQuixLab/js/custom.min.js" ></script>
+    <script src="~/TemplateQuixLab/js/settings.js" ></script>
+    <script src="~/TemplateQuixLab/js/gleek.js" ></script>
+    <script src="~/TemplateQuixLab/js/styleSwitcher.js" ></script>
+
+    <!-- Chartjs -->
+    <script src="~/TemplateQuixLab/plugins/chart.js/Chart.bundle.min.js" ></script>
+    <!-- Circle progress -->
+    <script src="~/TemplateQuixLab/plugins/circle-progress/circle-progress.min.js" ></script>
+    <!-- Datamap -->
+    <script src="~/TemplateQuixLab/plugins/d3v3/index.js" ></script>
+    <script src="~/TemplateQuixLab/plugins/topojson/topojson.min.js" ></script>
+    <script src="~/TemplateQuixLab/plugins/datamaps/datamaps.world.min.js" ></script>
+    <!-- Morrisjs -->
+    <script src="~/TemplateQuixLab/plugins/raphael/raphael.min.js" ></script>
+    <script src="~/TemplateQuixLab/plugins/morris/morris.min.js" ></script>
+    <!-- Pignose Calender -->
+    <script src="~/TemplateQuixLab/plugins/moment/moment.min.js" ></script>
+    <script src="~/TemplateQuixLab/plugins/pg-calendar/js/pignose.calendar.min.js" ></script>
+    <!-- ChartistJS -->
+    <script src="~/TemplateQuixLab/plugins/chartist/js/chartist.min.js" ></script>
+    <script src="~/TemplateQuixLab/plugins/chartist-plugin-tooltips/js/chartist-plugin-tooltip.min.js" ></script>
+    <!-- Toastr -->
+    <script src="~/TemplateQuixLab/plugins/toastr/js/toastr.min.js" ></script>
+    <script src="~/TemplateQuixLab/plugins/toastr/js/toastr.init.js" ></script>
+
+    <script src="~/TemplateQuixLab/js/dashboard/dashboard-1.js" ></script>
+
+    <!--date piker-->
+    <script src="~/TemplateQuixLab/plugins/moment/moment.js" ></script>
+    <script src="~/TemplateQuixLab/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js" ></script>
+    <!-- Clock Plugin JavaScript -->
+    <script src="~/TemplateQuixLab/plugins/clockpicker/dist/jquery-clockpicker.min.js" ></script>
+    <script src="~/TemplateQuixLab/plugins/jquery-asColorPicker-master/dist/jquery-asColorPicker.min.js" ></script>
+    <!-- Date Picker Plugin JavaScript -->
+    <script src="~/TemplateQuixLab/plugins/bootstrap-datepicker/bootstrap-datepicker.min.js" ></script>
+    <!-- Date range Plugin JavaScript -->
+    <script src="~/TemplateQuixLab/plugins/timepicker/bootstrap-timepicker.min.js" ></script>
+    <script src="~/TemplateQuixLab/plugins/bootstrap-daterangepicker/daterangepicker.js" ></script>
+
+    <script src="~/TemplateQuixLab/js/plugins-init/form-pickers-init.js" ></script>
+
+    <script type="text/javascript" asp-append-version="true">
+        function toastSuccess(header, message) {
+            toastr.success(message, header, { positionClass: "toast-bottom-right", timeOut: 5e3, closeButton: !0, debug: !1, newestOnTop: !0, progressBar: !0, preventDuplicates: !0, onclick: null, showDuration: "300", hideDuration: "1000", extendedTimeOut: "1000", showEasing: "swing", hideEasing: "linear", showMethod: "fadeIn", hideMethod: "fadeOut", tapToDismiss: !1 })
+        }
+        function toastError(header, message) {
+            toastr.error(message, header, { positionClass: "toast-bottom-right", timeOut: 5e3, closeButton: !0, debug: !1, newestOnTop: !0, progressBar: !0, preventDuplicates: !0, onclick: null, showDuration: "300", hideDuration: "1000", extendedTimeOut: "1000", showEasing: "swing", hideEasing: "linear", showMethod: "fadeIn", hideMethod: "fadeOut", tapToDismiss: !1 })
+        }
+
+    </script>
+</body>
+</html>

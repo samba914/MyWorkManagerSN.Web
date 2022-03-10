@@ -1,0 +1,291 @@
+﻿@model List<MyWorkManagerSN.Model.Customer>
+@{
+    ViewData["Title"] = "Tous les clients";
+    string userId = ViewData["userId"] as string;
+}
+
+
+<div class="content-body" style="margin:auto; padding:0 5% 0 5%">
+
+    <div class="row page-titles mx-0">
+        <div class="col p-md-0">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">Clients</a></li>
+            </ol>
+        </div>
+    </div>
+    <h2>Tous les clients</h2>
+
+    <div class="">
+        <div class="row">
+            <button type="button" id="addCat" data-acionType="add" class="action btn mb-1 btn-primary" style=" margin-left: 2%;">Ajouter un client</button>
+            <div class="input-group-prepend col-md-7">
+
+            </div>
+            <input id="myInput" type="search" class="form-control col-md-2 " placeholder="Recherche" aria-label="Search Dashboard">
+
+        </div>
+
+        <div style="margin-top: 2%;" class="card">
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table id="myTable" class="table table-bordered table-striped verticle-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Nom</th>
+                                <th scope="col">Prénom</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Mobile</th>
+                                <th scope="col">Adresse</th>
+                                <th scope="col">Valeur rapporté</th>
+                                <th scope="col">Action</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (MyWorkManagerSN.Model.Customer cl in Model)
+                            {
+                                <tr>
+                                    <td>@cl.Name</td>
+
+                                    <td>@cl.Surname</td>
+                                    <td>@cl.Email</td>
+                                    <td>@cl.Mobile</td>
+                                    @if(cl.Address!=null){
+                                        <td>@cl.Address.Rue, @cl.Address.Ville, @cl.Address.Complement, @cl.Address.CodePostal, @cl.Address.PaysCode <a  data-rue="@cl.Address.Rue" data-ville="@cl.Address.Ville" data-codepostal="@cl.Address.CodePostal" data-pays="@cl.Address.PaysCode" data-oId="@cl.ID" data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" type="button" href="#" class="addAdrsbtn btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a></td>
+                                    }else{
+                                         <td> <a  data-rue="" data-ville="" data-codepostal="" data-pays="" data-oId="@cl.ID" data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" type="button" href="#" class="addAdrsbtn btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a></td>
+                                    }
+                                    @{List<MyWorkManagerSN.Model.Order> listCustomerOrder = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Order>().GetAll(o => o.UserId == userId && o.CustomerId == cl.ID && (o.Status == "Payée" || o.Status == "Livrée")).ToList();
+                                        double sumAmountOrder = listCustomerOrder.Select(o => o.AmountTotal).Sum();
+                                     }
+                                    <td>@sumAmountOrder @ViewData["devise"]</td>
+                                    <td>
+                                        <span> <span data-name="@cl.Name" data-surname="@cl.Surname" data-oId="@cl.ID" data-email="@cl.Email" data-mobile="@cl.Mobile" data-acionType="edit" class="action"><a href="#" data-toggle="tooltip" data-placement="top" title="Modifier"><i class="fa fa-pencil color-muted m-r-5"></i> </a> </span> <span class="supCat" data-oId="@cl.ID"><a href="#" data-toggle="tooltip" data-placement="top" title="Supprimer"><i class="fa fa-close color-danger"></i></a></span></span>
+                                    </td>
+
+                                </tr>
+                            }
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <partial name="PartialCreateCustomer"/>
+    <div class="modal fade" id="addAdrs" tabindex="-1" role="dialog" aria-labelledby="addAdrsLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content modal-dialog-scrollable">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Modifier l'adresse</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="addAdrsFrom">
+                    <div class="modal-body">
+                    
+
+                            <label for="recipient-name" class="col-form-label">Rue</label>
+                            <input type="text" class="form-control input-default" id="oRue" placeholder="Numero et nom de rue" required>
+
+                            <label for="recipient-name" class="col-form-label">Complément</label>
+                            <input type="text" class="form-control input-default" id="oComplement" placeholder="Complément d'adresse'" >
+
+                            <label for="message-text" class="col-form-label">Ville</label>
+                            <input type="text" class="form-control input-default" id="oVille" placeholder="Ville" required>
+
+
+                            <label for="message-text" class="col-form-label">Code Postal</label>
+                            <input type="text" class="form-control input-default" id="oCodePostal" placeholder="Code Postal" required>
+
+                            <label for="message-text" class="col-form-label">Pays</label>
+                            <select id="paysCode" class="form-control input-default" >
+                                <option value="France">France</option>
+                                <option value="Italie">Italie</option>
+                                <option value="Sénégal">Sénégal</option>
+                                <option value="États-Unis">États-Unis</option>
+                          
+                            </select>
+
+                    
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" id="editAdrs" class="btn btn-info">Modifier</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      
+        $("#addAdrsFrom").submit(function (event) {
+            event.preventDefault();
+            if (document.getElementById('addAdrsFrom').checkValidity()) {
+
+                var rue = $("#oRue").val();
+                var ville = $("#oVille").val();
+                var complement = $("#oComplement").val();
+                var codepostal = $("#oCodePostal").val();
+                var pays = $("#paysCode").val();
+
+                $.post("/Customer/UpdateAddress", { id: currentId, rue: rue, ville: ville, codepostal: codepostal, pays: pays, complement: complement }, function (res) {
+                    if (res.success) {
+                        toastSuccess("Succès", res._acts.title)
+                        location.reload();
+
+                    } else {
+
+                        toastError("Erreur", res._acts.title)
+                    }
+
+                })
+            }
+        });
+        
+        var currentId = "";
+        $('#myInput').on('keyup', function () {
+            var input, filter, table, tr, td, td2, i, txtValue;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                td2 = tr[i].getElementsByTagName("td")[1];
+                if (td || td2) {
+                    txtValue = td.textContent || td.innerText;
+                    txtValue2 = td2.textContent || td2.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        });
+        $(".action").click(function () {
+            console.log("test")
+            if ($(this).attr("data-acionType") == "edit") {
+                $("#ModalLabel").html("Modifier votre cleint");
+                $("#editModelCustomerSubmit").html("Modifier");
+                $("#editModelCustomerSubmit").attr("data-acionType", "edit");
+                var name = $(this).attr("data-name");
+                var surname = $(this).attr("data-surname");
+                var email = $(this).attr("data-email");
+                var mobile = $(this).attr("data-mobile");
+                var address = $(this).attr("data-address");
+                $("#oName").val(name);
+                $("#oSurname").val(surname);
+                $("#oEmail").val(email);
+                $("#oMobile").val(mobile);
+                $("#oAddress").val(address);
+                currentId = $(this).attr("data-oId");
+
+            } else {
+                $("#ModalLabel").html("Ajouter un client");
+                $("#editModelCustomerSubmit").html("Ajouter");
+                $("#editModelCustomerSubmit").attr("data-acionType", "add");
+                $("#oName").val("");
+                $("#oSurname").val("");
+                $("#oEmail").val("");
+                $("#oMobile").val("");
+                $("#oAddress").val("");
+                $("#editModelCustomerSubmit").attr("data-acionType", "add");
+            }
+            $("#exampleModalCustomer").modal();
+
+        });
+
+
+
+        $("#catForm").submit(function (event) {
+
+            event.preventDefault();
+            if (document.getElementById('catForm').checkValidity()) {
+                var type = $("#editModelCustomerSubmit").attr("data-acionType");
+                var name = $("#oName").val();
+                var surname = $("#oSurname").val();
+                var email = $("#oEmail").val();
+                var mobile = $("#oMobile").val();
+
+                if (type == "add") {
+                    $.post("/Customer/Add", {
+                        name: name, surname: surname, email: email, mobile: mobile
+                    }, function (res) {
+                        if (res.success) {
+                            toastSuccess("Succès", res._acts.title);
+                            location.reload();
+                        } else {
+                            console.log(res)
+                            toastError("Erreur", res._acts.title)
+                        }
+
+                    })
+                } else {
+
+                    $.post("/Customer/Update", { id: currentId, name: name, surname: surname, email: email, mobile: mobile }, function (res) {
+                        if (res.success) {
+                            toastSuccess("Succès", res._acts.title)
+                            location.reload();
+
+                        } else {
+
+                            toastError("Erreur", res._acts.title)
+                        }
+
+                    })
+                }
+                $("#exampleModalCustomer").modal("hide");
+
+            }
+
+
+        });
+
+        $(".addAdrsbtn").click(function () {
+            currentId = $(this).attr("data-oId");
+            $("#oRue").val($(this).attr("data-rue"));
+            $("#oVille").val($(this).attr("data-ville"));
+            $("#oCodePostal").val($(this).attr("data-codepostal"));
+            $("#paysCode").val($(this).attr("data-pays"));
+            $("#addAdrs").modal();
+            $("#paysCode").val("Sénégal");
+        });
+
+        $(".supCat").click(function () {
+            if (confirm("Vous allez supprimer ce client!")) {
+                console.log("test")
+                var oId = $(this).attr("data-oId");
+                console.log(oId);
+
+                $.post("/Customer/Remove", { id: oId }, function (res) {
+                    if (res.success) {
+                        toastSuccess("Succès", res._acts.title)
+                        location.reload();
+                    } else {
+                        console.log(res)
+                        toastError("Erreur", res._acts.title)
+                    }
+
+
+                })
+            }
+
+        });
+
+
+
+    });
+</script>

@@ -1,0 +1,212 @@
+﻿
+@model List<MyWorkManagerSN.Model.Category>
+@{
+    ViewData["Title"] = "Toutes les catégories";
+    
+}
+
+<div class="content-body" style="margin:auto; padding:0 5% 0 5%">
+
+    <div class="row page-titles mx-0">
+        <div class="col p-md-0">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">Catégories</a></li>
+            </ol>
+        </div>
+    </div>
+    <h2>Toutes les catégories</h2>
+
+    <div class="">
+        <div class="row">
+            <button type="button" id="addCat" data-acionType="add" class="action btn mb-1 btn-primary" style=" margin-left: 2%;">Ajouter une catégorie</button>
+            <div class="input-group-prepend col-md-7">
+
+            </div>
+            <input id="myInput" type="search" class="form-control col-md-2 " placeholder="Recherche" aria-label="Search Dashboard">
+
+        </div>
+
+        <div style="margin-top: 2%;" class="card">
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table id="myTable" class="table table-bordered table-striped verticle-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Code</th>
+                                <th scope="col">Label</th>
+                                <th scope="col">Action</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (MyWorkManagerSN.Model.Category cat in Model)
+                            {
+                                <tr>
+                                    <td>@cat.Code</td>
+
+                                    <td>@cat.Label</td>
+
+                                    <td>
+                                        <span> <span data-code="@cat.Code" data-label="@cat.Label" data-oId="@cat.ID" data-acionType="edit" class="action"><a href="#" data-toggle="tooltip" data-placement="top" title="Modifier"><i class="fa fa-pencil color-muted m-r-5"></i> </a> </span> <span class="supCat" data-oId="@cat.ID"><a href="#" data-toggle="tooltip" data-placement="top" title="Supprimer"><i class="fa fa-close color-danger"></i></a></span></span>
+                                    </td>
+                                </tr>
+                            }
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+    <div class="modal fade" id="exampleModals" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Ajouter une catégorie</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="catForm">
+                    <div class="modal-body">
+                    
+                            <div class="form-group">
+                                <label for="recipient-name" class="col-form-label">Code</label>
+                                <input type="text" class="form-control input-default" id="oCode" placeholder="Code" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label">Label</label>
+                                <input type="text" class="form-control input-default" id="oLabel" placeholder="Label" required>
+                            </div>
+                    
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" id="editModelSubmit" class="btn btn-info">Ajouter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#myInput').on('keyup', function () {
+            var input, filter, table, tr, td,td2, i, txtValue;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                td2 = tr[i].getElementsByTagName("td")[1];
+                if (td || td2) {
+                    txtValue = td.textContent || td.innerText;
+                    txtValue2 = td2.textContent || td2.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        });
+
+        $(".action").click(function () {
+            if ($(this).attr("data-acionType") == "edit") {
+                $("#ModalLabel").html("Modifier votre catégorie");
+                $("#editModelSubmit").html("Modifier");
+                $("#editModelSubmit").attr("data-acionType", "edit");
+                var code = $(this).attr("data-code");
+                var label = $(this).attr("data-label");
+                $("#oCode").val(code);
+                $("#oLabel").val(label);
+                $("#oCode").prop('disabled', true);
+                var id = $(this).attr("data-oId");
+
+            } else {
+                $("#ModalLabel").html("Ajouter une catégorie");
+                $("#editModelSubmit").html("Ajouter");
+                $("#editModelSubmit").attr("data-acionType", "add");
+                $("#oCode").val("");
+                $("#oLabel").val("");
+                $("#oCode").prop('disabled', false);
+                $("#editModelSubmit").attr("data-acionType", "add");
+            }
+            $("#exampleModals").modal();
+
+        });
+     
+        $("#catForm").submit(function (event) {
+            
+            event.preventDefault();
+            if (document.getElementById('catForm').checkValidity()) {
+                var type = $("#editModelSubmit").attr("data-acionType");
+                var oCode = $("#oCode").val();
+                var oLabel = $("#oLabel").val();
+                if (type == "add") {
+                    $.post("/Category/Add", { code: oCode, label: oLabel }, function (res) {
+                        if (res.success) {
+                            toastSuccess("Succès", res._acts.title);
+                            location.reload();
+                        } else {
+                            console.log(res)
+                            toastError("Erreur", res._acts.title)
+                        }
+
+                    })
+                } else {
+                    $.post("/Category/Update", { code: oCode, label: oLabel }, function (res) {
+                        if (res.success) {
+                            toastSuccess("Succès", res._acts.title)
+                            location.reload();
+
+                        } else {
+
+                            toastError("Erreur", res._acts.title)
+                        }
+
+                    })
+                }
+                $("#exampleModals").modal("hide");
+
+            }
+            
+            
+        });
+        $(".supCat").click(function () {
+            if (confirm("Vous allez supprimer cette catégorie!")) {
+                console.log("test")
+                var oId = $(this).attr("data-oId");
+                console.log(oId);
+
+                $.post("/Category/Remove", { id: oId }, function (res) {
+                    if (res.success) {
+                        toastSuccess("Succès", res._acts.title)
+                        location.reload();
+                    } else {
+                        console.log(res)
+                        toastError("Erreur", res._acts.title)
+                    }
+
+
+                })
+            } 
+            
+        });
+
+        
+
+    });
+</script>

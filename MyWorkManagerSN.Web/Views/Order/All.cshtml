@@ -1,0 +1,331 @@
+﻿
+@model List<MyWorkManagerSN.Model.Order>
+@{
+    ViewData["Title"] = "Toutes les commandes";
+    string userId = ViewData["userId"] as string;
+}
+
+
+<style>
+    .modeNotSelected{
+        color:grey;
+        border-color:grey;
+
+    }
+    .modeNotSelected:hover{
+        color:white;
+    }
+
+</style>
+
+<div class="content-body" style="margin:auto; padding:0 5% 0 5%">
+
+    <div class="row page-titles mx-0">
+        <div class="col p-md-0">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">Commandes</a></li>
+            </ol>
+        </div>
+    </div>
+    <h2>Toutes les commandes</h2>
+
+    <div class="">
+        <div class="row">
+            <button type="button" id="addOrder" data-acionType="add" class="action btn mb-1 btn-primary" style=" margin-left: 2%;">Ajouter une commande</button>
+            <div class="input-group-prepend col-md-7">
+
+            </div>
+            <input id="serachInput" type="search" class="form-control col-md-2 " placeholder="Recherche" aria-label="Search Dashboard">
+
+        </div>
+
+
+
+        <div style="margin-top: 2%;" class="card">
+            <div class="card-body">
+                <div class="default-tab">
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active status" data-toggle="tab" href="#all" data-etat="all">Toutes les commandes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link status" data-toggle="tab" href="#all" data-etat="En cours">Commandes en cours</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link status" data-toggle="tab" href="#all" data-etat="Payée">Commandes payées</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link status" data-toggle="tab" href="#all" data-etat="Livrée">Commandes livrées</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link status" data-toggle="tab" href="#all" data-etat="Annulée">Commandes annulées</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="all" role="tabpanel">
+                            <div class="table-responsive">
+                                <table id="myTable" class="table table-bordered table-striped verticle-middle">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">N° Commande</th>
+                                            <th scope="col">Client</th>
+                                            <th scope="col">Montant Total TTc</th>
+                                            <th scope="col">Restant à payer</th>
+                                            <th scope="col">Statut</th>
+                                            <th scope="col">Date de création</th>
+
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (MyWorkManagerSN.Model.Order order in Model)
+                                        {
+                                        <tr>
+                                            <td><a href="@Url.Action("Show","Order", new { id = order.ID })" style="text-decoration-line: underline; font-size: initial; font-weight: initial;">CM-@String.Format("{0:0000}", order.NumOrder)</a></td>
+                                            @{ MyWorkManagerSN.Model.Customer c = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Customer>().GetById(userId, order.CustomerId); }
+                                            <td>@c.Surname @c.Name</td>
+
+                                            <td>@order.AmountTotal @ViewData["devise"]</td>
+                                            @{ double restToPay = order.AmountTotal - order.AmountPaid;}
+                                            <td>@restToPay @ViewData["devise"]
+                                            
+
+                                            <td>@order.Status</td>
+
+                                            <td>@order.DateCreation.ToString("dd/MM/yyyy")</td>
+
+
+                                        </tr>
+
+                                        }
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+    <div class="modal fade" id="exampleModals" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Ajouter une commande</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="catForm">
+                <div class="modal-body">
+                    <div style="text-align-last: center">
+                        <button id="modeStandard" type="button" class="btn mb-1 btn-outline-primary orderMode" data-modeIsSub="false">Standard</button>
+                        <button id="modeIsSub" type="button" class="btn mb-1 btn-outline-primary orderMode modeNotSelected" data-modeIsSub="true">Abonnement</button>
+                    </div>
+                    <br/>
+                    
+                        <p>Rechercher un client par : </p>
+                        <input type="radio" name="searchType" id="searchType1" value="Prenom_Nom" checked>
+                        <label class="mr-3" for="searchType1">Prénom Nom</label>
+                        <input type="radio" name="searchType" id="searchType2" value="Email">
+                        <label class="mr-3" for="searchType2">Email</label>
+                        <input type="radio" name="searchType" id="searchType3" value="Mobile">
+                        <label class="mr-3" for="searchType3">Mobile</label>
+                        <br />
+                        <div class="autocomplete" style="display: inline-flex; width: -webkit-fill-available;">
+                            <input id="inputAutoComplete" class="form-control input-default" data-controller="Customer" type="text" required name="myCountry" placeholder="Client" autocomplete="off">
+                            <a id="addNewCustomer" type="button" href="#" class="btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a>
+                        </div>
+                        <br />
+
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Date de création</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="@DateTime.Now.ToString("dd/MM/yyyy")" id="datepickerCustom" placeholder="dd/mm/yyyy" required> <span class="input-group-append"><span class="input-group-text"><i class="mdi mdi-calendar-check"></i></span></span>
+                            </div>
+                        </div>
+                   
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="submit" id="editModelSubmit" class="btn btn-info">Ajouter</button>
+                </div>
+                 </form>
+            </div>
+        </div>
+    </div>
+    <partial name="../Customer/PartialCreateCustomer" />
+</div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+
+<script type="text/javascript" src="~/js/createCustomer.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var IsSubscription = false;
+        var seachType = "Prenom_Nom";
+        $('#serachInput').on('keyup', function () {
+            var input, filter, table, tr, td, td2, i, txtValue;
+            var status = $($(".nav-link.active.status")[0]).attr("data-etat");
+            input = document.getElementById("serachInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                td2 = tr[i].getElementsByTagName("td")[1];
+                td3 = tr[i].getElementsByTagName("td")[2];
+                td4 = tr[i].getElementsByTagName("td")[3];
+                td5 = tr[i].getElementsByTagName("td")[4];
+                tdStatus = tr[i].getElementsByTagName("td")[4];
+                td6 = tr[i].getElementsByTagName("td")[5];
+                if (td || td2 || td3 || td4 || td5 || td6) {
+                    txtValue = td.textContent || td.innerText;
+                    txtValue2 = td2.textContent || td2.innerText;
+                    txtValue3 = td3.textContent || td3.innerText;
+                    txtValue4 = td4.textContent || td4.innerText;
+                    txtValue5 = td5.textContent || td5.innerText;
+                    txtValue6 = td6.textContent || td6.innerText;
+                    txtValueStatut = tdStatus.textContent || tdStatus.innerText;
+                    console.log(txtValueStatut)
+                    if (status == "all" && (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1 || txtValue3.toUpperCase().indexOf(filter) > -1 || txtValue4.toUpperCase().indexOf(filter) > -1 || txtValue5.toUpperCase().indexOf(filter) > -1 || txtValue6.toUpperCase().indexOf(filter) > -1)) {
+                        tr[i].style.display = "";
+                    } else if (txtValueStatut == status && (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1 || txtValue3.toUpperCase().indexOf(filter) > -1 || txtValue4.toUpperCase().indexOf(filter) > -1 || txtValue6.toUpperCase().indexOf(filter) > -1)) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        });
+
+
+        $('.status').on('click', function () {
+            var status = $(this).attr("data-etat");
+            var input, filter, table, tr, td, i, txtValue;
+            input = status;
+            filter = input.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                if (status == "all") {
+                    tr[i].style.display = "";
+                }
+                else {
+                    td = tr[i].getElementsByTagName("td")[4];
+                    if (td) {
+                        txtValue = td.textContent || td.innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+
+            }
+        });
+        $(".orderMode").click(function () {
+            $("#inputAutoComplete").val("");
+            $("#inputAutoComplete").attr("data-id", "");
+            if ($(this).attr("data-modeIsSub") == "true") {
+                IsSubscription = true;
+                $("#modeIsSub").removeClass("modeNotSelected");
+                $("#modeStandard").addClass("modeNotSelected");
+                $("#addNewCustomer").attr("hidden", true);
+                $("#inputAutoComplete").attr("data-method", "GetAllCustomerForSub");
+            } else {
+                IsSubscription = false;
+                $("#addNewCustomer").attr("hidden", false);
+                $("#modeIsSub").addClass("modeNotSelected");
+                $("#modeStandard").removeClass("modeNotSelected");
+                $("#inputAutoComplete").attr("data-method", "");
+            }
+            autocomplete(document.getElementById("inputAutoComplete"), seachType);
+       
+
+        });
+
+        $("input").removeAttr('readonly');
+        $("#datepickerCustom").attr("readonly", true);
+
+        $("#catForm").submit(function () {
+            if(document.getElementById('catForm').checkValidity()){
+                $.post("/Order/CreateOrder", { date: $("#datepickerCustom").val(), customerId: $("#inputAutoComplete").attr("data-id"), isSubMode: IsSubscription }, function (res) {
+                if (res.success) {
+                    toastSuccess("Succès", res._acts.title);
+                    window.location.href = "/Order/Show/" + res._acts.orderId;
+                } else {
+                    console.log(res)
+                    toastError("Erreur", res._acts.title)
+                }
+            }
+            );
+            }
+        });
+
+        
+        $("#addOrder").click(function () {
+            autocomplete(document.getElementById("inputAutoComplete"), seachType);
+
+            $("#exampleModals").modal();
+
+
+        });
+
+        const buttons = document.querySelectorAll("input[type='radio']");
+
+        // adding event to all radio buttons
+        buttons.forEach(button => {
+            button.onclick = () => {
+                if (button.checked) {
+                    seachType = button.value;
+                    autocomplete(document.getElementById("inputAutoComplete"), seachType);
+                    $("#inputAutoComplete").val("");
+                }
+            }
+        })
+
+
+
+
+            ; (function ($) {
+                $.fn.datepicker.dates['fr'] = {
+                    days: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+                    daysShort: ["Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam."],
+                    daysMin: ["D", "L", "Ma", "Me", "J", "V", "S"],
+                    months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+                    monthsShort: ['Janv.', 'Févr.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.'],
+                    today: "Aujourd'hui",
+                    monthsTitle: "Mois",
+                    clear: "Effacer",
+                    weekStart: 1,
+                    format: "dd/mm/yyyy"
+                };
+            }(jQuery));
+
+        $('#datepickerCustom').datepicker({
+            language: 'fr',
+            autoclose: true,
+            todayHighlight: true
+        });
+
+
+    });
+
+</script>

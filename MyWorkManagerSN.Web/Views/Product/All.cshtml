@@ -1,0 +1,353 @@
+﻿@model List<MyWorkManagerSN.Model.Product>
+@{
+    ViewData["Title"] = "Tous les produits ";
+
+}
+<style>
+    .req {
+        color: red;
+    }
+</style>
+
+@{
+    string userId = ViewData["userId"] as string;
+    MyWorkManagerSN.Model.User user = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.User>().Get(u => u.UserId == userId);
+}
+
+<div class="content-body" style="margin:auto; padding:0 5% 0 5%">
+
+    <div class="row page-titles mx-0">
+        <div class="col p-md-0">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">Produits</a></li>
+            </ol>
+        </div>
+    </div>
+    <h2>Toutes les produits</h2>
+
+    <div class="">
+        <div class="row">
+            <button type="button" id="addCat" data-acionType="add" class="action btn mb-1 btn-primary" style=" margin-left: 2%;">Ajouter un produit</button>
+            <div class="input-group-prepend col-md-7">
+            </div>
+            <input id="myInput" type="search" class="form-control col-md-2 " placeholder="Recherche" aria-label="Search Dashboard">
+
+        </div>
+
+        <div style="margin-top: 2%;" class="card">
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table id="myTable" class="table table-bordered table-striped verticle-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Code</th>
+                                <th scope="col">Catégorie</th>
+                                <th scope="col">Label</th>
+                                <th scope="col">Prix Ht</th>
+                                <th scope="col">TVA</th>
+                                <th scope="col">Prix Ttc</th>
+                                
+                                <th scope="col">Stock</th>
+                                <th scope="col">Action</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (MyWorkManagerSN.Model.Product product in Model)
+                            {
+                                <tr>
+                                    <td>@product.Code</td>
+                                    @{
+                                        string catLabel = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Category>().GetById(userId, product.CategoryId).Label;
+                                    }
+                                    <td>@catLabel</td>
+                                    <td>@product.Label</td>
+                                    <td>@product.PriceHT @user.Devise</td>
+                                    <td>@product.TVA %</td>
+                                    <td>@product.PriceTtc @user.Devise</td>
+                                    
+                                    @{
+                                        string stockColor = "black";
+                                        if (product.Stock < 10)
+                                        {
+                                            stockColor = "red";
+                                        }
+                                        else if (product.Stock < 20)
+                                        {
+                                            stockColor = "orange";
+                                        }
+                                    }
+                                    <td style="font-weight: bold; color:@stockColor">@product.Stock</td>
+
+                                    <td>
+                                        <span> <span data-code="@product.Code" data-stock="@product.Stock" data-label="@product.Label" data-oId="@product.ID" data-priceHT="@product.PriceHT" data-priceTtc="@product.PriceTtc" data-tva="@product.TVA" data-catId="@product.CategoryId" data-acionType="edit" class="action"><a href="#" data-toggle="tooltip" data-placement="top" title="Modifier"><i class="fa fa-pencil color-muted m-r-5"></i> </a> </span> <span class="supCat" data-oId="@product.ID"><a href="#" data-toggle="tooltip" data-placement="top" title="Supprimer"><i class="fa fa-close color-danger"></i></a></span></span>
+                                    </td>
+                                </tr>
+                            }
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+    <div class="modal fade" id="exampleModals" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Ajouter un produit</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="catForm">
+                    <div class="modal-body">
+
+
+                        <label for="recipient-name" class="col-form-label">Code <span class="req">*</span></label>
+                        <input type="text" class="form-control input-default" id="oCode" placeholder="Code" required>
+
+                        <label for="message-text" class="col-form-label">Label <span class="req">*</span></label>
+                        <input type="text" class="form-control input-default" id="oLabel" placeholder="Label" required>
+
+                        <label for="message-text" class="col-form-label">Prix HT <span class="req">*</span></label>
+                        <input type="text" class="form-control input-default" id="oPriceHt" placeholder="Prix HT" required>
+
+                        <label for="message-text" class="col-form-label">TVA <span class="req">*</span></label>
+                        <select id="tva" class="form-control">
+                            <option value="0">0%</option>
+                            <option value="5">5%</option>
+                            <option value="10">10%</option>
+                            <option value="20">20%</option>
+                        </select>
+
+                        <label for="message-text" class="col-form-label">Prix Ttc <span class="req">*</span></label>
+                        <input type="text" class="form-control input-default" id="oPriceTtc" placeholder="Prix TTc" required>
+
+                        <label for="message-text" class="col-form-label">Catégorie <span class="req">*</span></label>
+                        <select id="productCatId" class="form-control">
+
+                            @foreach (MyWorkManagerSN.Model.Category cat in new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Category>().GetAll(p => p.UserId == userId))
+                            {
+                                <option value="@cat.ID">@cat.Label</option>
+                            }
+                        </select>
+                        <p id="invalidCatMessage" class="text-red" hidden>Veillez sélectonner une catégorie!</p>
+                        <label for="message-text" class="col-form-label">Stock </label>
+                        <input type="number" class="form-control input-default" id="oStock" placeholder="Stock">
+
+
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" id="editModelSubmit" class="btn btn-info">Ajouter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        let round = (num, places) => {
+            const x = Math.pow(10, places);
+            return Math.round(num * x) / x;
+        }
+        $("#productCatId").change(function(){
+            $("#invalidCatMessage").attr("hidden",true);
+        });
+        $("#oPriceHt").change(function () {
+            var ht = $(this).val().replace(",", ".");
+            if (!isNaN(parseFloat(ht))) {
+                var tva = Number($("#tva").val());
+                ht = parseFloat(ht)
+                console.log(ht)
+                $("#oPriceTtc").val(round(ht + ((ht * tva) / 100), 2));
+            } else {
+                console.log("a")
+                $("#oPriceHt").val(0);
+                $("#oPriceTtc").val(0);
+            }
+
+        });
+        $("#oPriceTtc").change(function () {
+            if (!isNaN(parseFloat($(this).val()))) {
+                var ttc = parseFloat($(this).val());
+                var tva = Number($("#tva").val());
+                $("#oPriceHt").val(round((100 * ttc) / (100 + tva), 2));
+            } else {
+                $("#oPriceTtc").val(0);
+                $("#oPriceHt").val(0);
+            }
+        });
+        $("#tva").change(function () {
+            var ht = parseFloat($("#oPriceHt").val());
+            var tva = Number($(this).val());
+            $("#oPriceTtc").val(round(ht + ((ht * tva) / 100), 2));
+        });
+
+        $('#myInput').on('keyup', function () {
+            var input, filter, table, tr, td, td2, i, txtValue;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                td2 = tr[i].getElementsByTagName("td")[1];
+                td3 = tr[i].getElementsByTagName("td")[2];
+                td4 = tr[i].getElementsByTagName("td")[3];
+                td5 = tr[i].getElementsByTagName("td")[4];
+                td6 = tr[i].getElementsByTagName("td")[5];
+                td7 = tr[i].getElementsByTagName("td")[6];
+                if (td || td2 || td3 || td4 || td5 || td6 || td7) {
+                    txtValue = td.textContent || td.innerText;
+                    txtValue2 = td2.textContent || td2.innerText;
+                    txtValue3 = td3.textContent || td3.innerText;
+                    txtValue4 = td4.textContent || td4.innerText;
+                    txtValue5 = td5.textContent || td5.innerText;
+                    txtValue6 = td6.textContent || td6.innerText;
+                    txtValue7 = td7.textContent || td7.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1 || txtValue3.toUpperCase().indexOf(filter) > -1 || txtValue4.toUpperCase().indexOf(filter) > -1 || txtValue5.toUpperCase().indexOf(filter) > -1 || txtValue6.toUpperCase().indexOf(filter) > -1 || txtValue7.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        });
+
+        $(".action").click(function () {
+            if ($(this).attr("data-acionType") == "edit") {
+                $("#ModalLabel").html("Modifier votre produit");
+                $("#editModelSubmit").html("Modifier");
+                $("#editModelSubmit").attr("data-acionType", "edit");
+                var code = $(this).attr("data-code");
+                var label = $(this).attr("data-label");
+                var prixTtc = $(this).attr("data-priceTtc");
+                var prixHT = $(this).attr("data-priceHT");
+                var tva = $(this).attr("data-tva");
+                var catId = $(this).attr("data-catId");
+                var stock = $(this).attr("data-stock");
+
+                $("#oCode").val(code);
+                $("#oLabel").val(label);
+                $("#oCode").prop('disabled', true);
+                $("#oPriceTtc").val(prixTtc);
+                $("#oPriceHt").val(prixHT);
+                $("#tva").val(tva);
+                $("#productCatId").val(catId);
+                $("#oStock").val(stock);
+
+
+            } else {
+                $("#ModalLabel").html("Ajouter une catégorie");
+                $("#editModelSubmit").html("Ajouter");
+                $("#editModelSubmit").attr("data-acionType", "add");
+                $("#oCode").val("");
+                $("#oLabel").val("");
+                $("#oPriceTtc").val(0);
+                $("#oPriceHt").val(0);
+                $("#oStock").val(0);
+                $("#productCatId").val("");
+                $("#oCode").prop('disabled', false);
+                $("#editModelSubmit").attr("data-acionType", "add");
+            }
+            $("#exampleModals").modal();
+
+        });
+
+        $("#catForm").submit(function (event) {
+
+            $(".form-control.input-default").addClass("verifyForm");
+            event.preventDefault();
+
+            if($("#productCatId").val()!=null && $("#productCatId").val()!=""){
+
+
+
+                if (document.getElementById('catForm').checkValidity()) {
+                    $("#invalidCatMessage").attr("hidden",true);
+                    var type = $("#editModelSubmit").attr("data-acionType");
+                    var oCode = $("#oCode").val();
+                    var oLabel = $("#oLabel").val();
+                    console.log("la")
+                    console.log(parseFloat($("#oPriceTtc").val()))
+                    var prixTtc = $("#oPriceTtc").val().replace(".", ",");
+                    var prixHT = $("#oPriceHt").val().replace(".", ",");
+                    var otva = Number($("#tva").val());
+                    var catId = $("#productCatId").val();
+                    var stock = $("#oStock").val();
+
+                    if (type == "add") {
+                        $.post("/Product/Add", { code: oCode, label: oLabel, priceTtc: prixTtc, priceHt: prixHT, tva: otva, categoryId: catId, stock : stock }, function (res) {
+                            if (res.success) {
+                                toastSuccess("Succès", res._acts.title);
+                                //location.reload();
+                            } else {
+                                console.log(res)
+                                toastError("Erreur", res._acts.title)
+                            }
+
+                        })
+                    } else {
+                        console.log({ code: oCode, label: oLabel, priceTtc: prixTtc, priceHt: prixHT, tva: otva, categoryId: catId })
+                        $.post("/Product/Update", { code: oCode, label: oLabel, priceTtc: prixTtc, priceHt: prixHT, tva: otva, categoryId: catId, stock: stock}, function (res) {
+                            if (res.success) {
+                                toastSuccess("Succès", res._acts.title)
+                                location.reload();
+
+                            } else {
+
+                                toastError("Erreur", res._acts.title)
+                            }
+
+                        })
+                    }
+                    $("#exampleModals").modal("hide");
+
+
+                }
+           }else{
+               $("#invalidCatMessage").attr("hidden",false);
+           }
+
+
+        });
+        $(".supCat").click(function () {
+            if (confirm("Vous allez supprimer ce produit!")) {
+                console.log("test")
+                var oId = $(this).attr("data-oId");
+                console.log(oId);
+
+                $.post("/Product/Remove", { id: oId }, function (res) {
+                    if (res.success) {
+                        toastSuccess("Succès", res._acts.title)
+                        location.reload();
+                    } else {
+                        console.log(res)
+                        toastError("Erreur", res._acts.title)
+                    }
+
+
+                })
+            }
+
+        });
+
+
+
+    });
+</script>

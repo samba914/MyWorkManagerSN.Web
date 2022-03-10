@@ -1,0 +1,192 @@
+﻿
+@{
+    Layout = "_LayoutSettings";
+    ViewData["Title"] = "Profile";
+    string userId = ViewData["userId"] as string;
+    string imageUrl = ViewData["imageUrl"] as string;
+    MyWorkManagerSN.Model.User user = ViewData["user"] as MyWorkManagerSN.Model.User;
+    string showImageInvoice ="";
+    if (user.ShowImageOnInvoice !=null && user.ShowImageOnInvoice )
+    {
+        showImageInvoice = "checked";
+    }
+}
+<style>
+    input[type="checkbox"]:after {
+        border: 1px solid #afabab;
+    }
+    
+    #imageUpload {
+        display: none;
+    }
+
+    #profileImage {
+        cursor: pointer;
+    }
+</style>
+
+<div class="content-body" style="margin-left:0; padding-top: 3%">
+    <div class="card" style="margin:0 5%">
+        <div class="card-body">
+            <div class="media align-items-center mb-4">
+                @using (Html.BeginForm("UpdateProfilImage", "Profile", FormMethod.Post, new { id = "UpdateProfilImageForm", role = "form", enctype = "multipart/form-data" }))
+                {
+                   
+                    <div id="profile-container">
+                        <image id="profileImage" src="@("/image/"+imageUrl)" class="mr-3" width="80" height="80" alt="" asp-append-version="true">
+                    </div>
+                    <input id="imageUpload" type="file" accept="image/*"
+                           name="profile_photo" placeholder="Photo" capture class="mr-3" width="80" height="80" alt="">
+                }
+                <div class="media-body">
+                    <h3 class="mb-0">@user.Username</h3>
+                   <div> <input id="showImageInvoice" class="mr-2" type="checkbox" @showImageInvoice /><span class="text-muted mb-0">Montrer cette image dans vos factures</span></div>
+                </div>
+            </div>
+
+
+            @using (Html.BeginForm("ChangeProfileData", "Profile", FormMethod.Post, new { role = "form", enctype = "multipart/form-data" }))
+            {
+
+                <table class="card-profile__info">
+
+                    <tr><th class="text-dark mr-4" style="align-self:center">Email</th> <td><input disabled style="margin:5%" type="text" class="form-control input-rounded mr-6" placeholder="Email" value="@user.Email"></td></tr>
+                    <tr><th class="text-dark mr-4" style="align-self:center">Mobile</th> <td><input style="margin:5%" type="text" class="form-control input-rounded mr-6" placeholder="Mobile" name="Mobile" value="@user.Mobile"></td></tr>
+                    <tr><th class="text-dark mr-4" style="align-self:center">Nom entriprise</th> <td><input style="margin:5%" type="text" class="form-control input-rounded mr-6" placeholder="Nom entriprise" name="CompanyName" value="@user.CompanyName"></td></tr>
+                    @if (user.Address != null)
+                    {
+                     <tr><th class="text-dark mr-4" style="align-self:center">Adresse</th> <td>@user.Address.Rue, @user.Address.Complement, @user.Address.Ville, @user.Address.CodePostal, @user.Address.PaysCode <a data-rue="@user.Address.Rue" data-ville="@user.Address.Ville" data-codepostal="@user.Address.CodePostal" data-pays="@user.Address.PaysCode" data-oId="@user.ID" data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" type="button" href="#" class="addAdrsbtn btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a></td></tr>   
+                    }else
+                    {
+                    <tr><th class="text-dark mr-4" style="align-self:center">Adresse</th> <td> <a data-rue="" data-ville="" data-codepostal="" data-pays="" data-oId="@user.ID" data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" type="button" href="#" class="addAdrsbtn btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a></td></tr>
+                    }
+                    <tr><th class="text-dark mr-4" style="align-self:center">Devise </th> <td><select style="margin:5%" class="form-control input-rounded mr-6" id="Devise" name="Devise" value="@user.Devise"><option value=""> </option><option value="$"> $</option><option value="€">€ </option> <option value="XOF">XOF</option></select></td></tr>
+                </table>
+                <button class="btn btn-info submit mb-3" type="submit">Enregistrer</button>
+            }
+
+
+        </div>
+    </div>
+    <div class="modal fade" id="addAdrs" tabindex="-1" role="dialog" aria-labelledby="addAdrsLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content modal-dialog-scrollable">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Modifier l'adresse</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addAdrsFrom">
+
+                        <label for="recipient-name" class="col-form-label">Rue</label>
+                        <input type="text" class="form-control input-default" id="oRue" placeholder="Numero et nom de rue" required>
+
+                        <label for="recipient-name" class="col-form-label">Complément</label>
+                        <input type="text" class="form-control input-default" id="oComplement" placeholder="Complément d'adresse">
+
+                        <label for="message-text" class="col-form-label">Ville</label>
+                        <input type="text" class="form-control input-default" id="oVille" placeholder="Ville" >
+
+
+                        <label for="message-text" class="col-form-label">Code Postal</label>
+                        <input type="text" class="form-control input-default" id="oCodePostal" placeholder="Code Postal" >
+
+                        <label for="message-text" class="col-form-label">Pays</label>
+                        <select id="paysCode" class="form-control input-default">
+                            <option value="France">France</option>
+                            <option value="Italie">Italie</option>
+                            <option value="Sénégal">Sénégal</option>
+                            <option value="États-Unis">États-Unis</option>
+
+                        </select>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <button type="submit" id="editAdrs" class="btn btn-info">Modifier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function fasterPreview(uploader) {
+            if (uploader.files && uploader.files[0]) {
+                $('#profileImage').attr('src',
+                    window.URL.createObjectURL(uploader.files[0]));
+            }
+            $("#UpdateProfilImageForm").submit();
+        }
+    $(document).ready(function () {
+        $(".addAdrsbtn").click(function () {
+            currentId = $(this).attr("data-oId");
+            $("#oRue").val($(this).attr("data-rue"));
+            $("#oVille").val($(this).attr("data-ville"));
+            $("#oCodePostal").val($(this).attr("data-codepostal"));
+            $("#paysCode").val($(this).attr("data-pays"));
+            $("#addAdrs").modal();
+            $("#paysCode").val("Sénégal");
+        });
+        $("#editAdrs").click(function () {
+            console.log("ddvaant");
+             $("#addAdrsFrom").submit();
+        
+        });
+        $("#showImageInvoice").change(function(event){
+            var checked = $(this).is(':checked');
+            $.post("/Profile/UpdateShowPictureIncoice",{id:"@user.ID", value:checked},function (res){
+                if (res.success) {
+                        toastSuccess("Succès", res._acts.title)                
+                    } else {
+
+                        toastError("Erreur", res._acts.title)
+                    }
+            });
+        });
+        $("#addAdrsFrom").submit(function (event) {
+            console.log("ici loooo");
+            event.preventDefault();
+            if (document.getElementById('addAdrsFrom').checkValidity()) {
+
+                var rue = $("#oRue").val();
+                var ville = $("#oVille").val();
+                var complement = $("#oComplement").val();
+                var codepostal = $("#oCodePostal").val();
+                var pays = $("#paysCode").val();
+                console.log("defefe")
+                $.post("/Profile/UpdateAddress", { id: currentId, rue: rue, ville: ville, codepostal: codepostal, pays: pays, complement: complement }, function (res) {
+                    if (res.success) {
+                        toastSuccess("Succès", res._acts.title)
+                        location.reload();
+
+                    } else {
+
+                        toastError("Erreur", res._acts.title)
+                    }
+
+                })
+            }
+
+        });
+    
+        $("#Devise").val("@user.Devise");
+        $("#profileImage").click(function (e) {
+            console.log("test");
+            $("#imageUpload").click();
+        });
+
+        $("#imageUpload").change(function () {
+            fasterPreview(this);
+        });
+
+        $("#imageUpload").change(function () {
+            fasterPreview(this);
+        });
+    });
+
+
+</script>

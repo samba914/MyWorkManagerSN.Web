@@ -1,0 +1,98 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@using System.Security.Claims;
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="icons dropdown">
+        <a href="javascript:void(0)" data-toggle="dropdown">
+            <i class="mdi mdi-bell-outline"></i>
+            <span class="badge badge-pill gradient-2">3</span>
+        </a>
+        <div class="drop-down animated fadeIn dropdown-menu dropdown-notfication">
+            <div class="dropdown-content-heading d-flex justify-content-between">
+                <span class="">2 New Notifications</span>
+                <a href="javascript:void()" class="d-inline-block">
+                    <span class="badge badge-pill gradient-2">5</span>
+                </a>
+            </div>
+            <div class="dropdown-content-body">
+                <ul>
+                    <li>
+                        <a href="javascript:void()">
+                            <span class="mr-3 avatar-icon bg-danger-lighten-2"><i class="icon-present"></i></span>
+                            <div class="notification-content">
+                                <h6 class="notification-heading">Events to Join</h6>
+                                <span class="notification-text">After two days</span>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </li>
+    <li class="icons dropdown d-none d-md-flex">
+        <a href="javascript:void(0)" class="log-user" data-toggle="dropdown">
+            <span>English</span>  <i class="fa fa-angle-down f-s-14" aria-hidden="true"></i>
+        </a>
+        <div class="drop-down dropdown-language animated fadeIn  dropdown-menu">
+            <div class="dropdown-content-body">
+                <ul>
+                    <li><a href="javascript:void()">Français</a></li>
+                    <li><a href="javascript:void()">English</a></li>
+                </ul>
+            </div>
+        </div>
+    </li>
+     string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+     MyWorkManagerSN.Model.User user = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.User>().Get(u => u.UserId == userId);
+     var imageUrl = "~/TemplateQuixLab/images/favicon.png";
+     if (user!=null&& user.ProfileImagePath != null)
+         {
+         imageUrl = user.ProfileImagePath;
+    }
+
+
+    <li class="icons dropdown">
+        <div class="user-img c-pointer position-relative" data-toggle="dropdown">
+            <span class="activity active"></span>
+            <img src="@("/image/"+imageUrl)" height="40" width="40" alt="">
+        </div>
+        <div class="drop-down dropdown-profile animated fadeIn dropdown-menu">
+            <div class="dropdown-content-body">
+                <ul>
+                    <li>
+                        <a href="@Url.Action("Show","Profile")"><i class="icon-user"></i> <span>Profile</span></a>
+                    </li>
+                   
+
+                    <hr class="my-2">
+                   
+                    <li>
+
+                        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                            <ul class="nav navbar-nav navbar-right">
+
+                                <li><a href="javascript:document.getElementById('logoutForm').submit()"><i class="icon-key"></i>Se déconnecter</a></li>
+                            </ul>
+                        </form>
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </li>
+    <ul />
+}
+else
+{
+
+
+    <ul class="clearfix" style="margin-top: 15px;">
+        <span style="white-space: break-spaces; margin-right:35px"><i class="icon-user-follow"></i>  <a id="registerLink" asp-area="Identity" asp-page="/Account/Register">S'incrire</a> </span>
+        <span><i class="icon-login"></i> <a id="loginLink" asp-area="Identity" asp-page="/Account/Login">Se connecter</a></span>
+    </ul>
+}
+

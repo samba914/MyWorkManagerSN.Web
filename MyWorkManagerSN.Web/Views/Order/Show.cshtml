@@ -1,0 +1,775 @@
+﻿@model MyWorkManagerSN.Model.Order
+@{
+    ViewBag.Title = "All";
+    if (Model.Lines == null)
+    {
+        Model.Lines = new List<MyWorkManagerSN.Model.OrderLine>();
+    }
+    Dictionary<string, string> listStates = ViewData["listStates"] as Dictionary<string, string>;
+    string hidden = "";
+    string hiddenSub = "hidden";
+    if (Model.IsOrderSubuscription) {
+        hiddenSub = "";
+    }
+    if (Model.Status != "En cours")
+    {
+        hidden = "hidden";
+    }
+    string userId = ViewData["userId"] as string ;
+    MyWorkManagerSN.Model.Customer customer = ViewData["Customer"] as MyWorkManagerSN.Model.Customer;
+}
+
+
+<style>
+    /* Dropdown Button */
+    .trAdded, .trBase {
+        text-align: right;
+    }
+
+    .amount {
+        height: 140px;
+    }
+
+    .dropbtn {
+        background-color: #04AA6D;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+    }
+
+        /* Dropdown button on hover & focus */
+        .dropbtn:hover, .dropbtn:focus {
+            background-color: #3e8e41;
+        }
+
+    /* The search field */
+    #myInput {
+        box-sizing: border-box;
+        background-position: 14px 12px;
+        background-repeat: no-repeat;
+        font-size: 16px;
+        padding: 14px 20px 12px 45px;
+        border: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+        /* The search field when it gets focus/clicked on */
+        #myInput:focus {
+            outline: 3px solid #ddd;
+        }
+
+    /* The container <div> - needed to position the dropdown content */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Dropdown Content (Hidden by Default) */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f6f6f6;
+        min-width: 230px;
+        border: 1px solid #ddd;
+        z-index: 1;
+    }
+
+        /* Links inside the dropdown */
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+            /* Change color of dropdown links on hover */
+            .dropdown-content a:hover {
+                background-color: #f1f1f1
+            }
+
+    /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+    .show {
+        display: block;
+    }
+
+    .btn-group.show {
+        display: inline-block;
+    }
+
+    .card-body.amountCard {
+        padding: 1.25rem;
+    }
+</style>
+
+<div class="content-body" style="margin:auto; padding:0 5% 0 5%">
+
+    <div class="row page-titles mx-0">
+        <div class="col p-md-0">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">Commandes</a></li>
+            </ol>
+        </div>
+    </div>
+    <div style="display:inline-block">
+        <h2 style="display:inline-block">Commande <span @hiddenSub>d'abonnement </span>CM-@String.Format("{0:0000}", Model.NumOrder)</h2>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn mb-1 @ViewData["stateColor"] btn-rounded  text-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@Model.Status</button>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-lg-4 col-xs-3">
+            <div class="card amount" style="border: double black; width: 70%; background-color: transparent;">
+                <div class="card-body amountCard">
+                    <h2 class="card-title"><i class="fas fa-user"></i> Client</h2>
+                    <div class="text-center">
+                        <b>@customer.Surname @customer.Name</b>
+                        <p class="mb-0">@customer.Email</p>
+                        <pclass ="mb-0">@customer.Mobile</pclass>
+                        <p @hiddenSub><span class="badge badge-pill text-white badge-secondary">Solde : @ViewData["SoldeAbonnement"] @ViewData["devise"] </span></p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-xs-3">
+            <div class="card gradient-2 amount">
+                <div class="card-body amountCard">
+                    <h3 class="card-title text-white">Montant TTC</h3>
+                    <div class="d-inline-block">
+                        <h2 class="text-white"><span id="AmountTotalOrder">@Model.AmountTotal</span> @ViewData["devise"]</h2>
+                        <p class="text-white mb-0">@Model.DateCreation.ToString("dd MMMM yyyy")</p>
+                    </div>
+                    <span class="float-right display-5 opacity-5"><i class="ion ion-document-text"></i></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-xs-3">
+            <div class="card gradient-2 amount">
+                <div class="card-body amountCard">
+                    <h3 class="card-title text-white">Montant facturé TTC</h3>
+                    <div class="d-inline-block">
+                        <h2 class="text-white"><span id="AmountPaidOrder">@Model.AmountPaid</span> @ViewData["devise"]</h2>
+                        <p class="text-white mb-0">Mode de paiement : @ViewData["PaymentMode"]</p>
+                    </div>
+                    <span class="float-right display-5 opacity-5"><i class="fa fa-money"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <div class="btn-group">
+            @foreach (var etat in listStates)
+            {
+                <button type="button" class="etat btn btn-primary" data-id="@etat.Key" data-etat="@etat.Key">@etat.Value</button>
+            }
+
+            <button type="button" id="paymentBtn" class="btn btn-primary" @hidden>Payer</button>
+        </div>
+    </div>
+
+    <div class="">
+
+
+        <div style="margin-top: 2%;" class="card">
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table id="myTable" class="table table-bordered table-striped verticle-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Désignation</th>
+                                <th scope="col">Quantité</th>
+                                <th scope="col">Prix unitaire</th>
+                                <th scope="col">Remise unitaire</th>
+                                <th scope="col">Prix HT</th>
+                                <th scope="col">TVA</th>
+                                <th scope="col">Prix TTC</th>
+                                <th scope="col" @hidden>Action</th>
+
+
+
+                            </tr>
+                        </thead>
+                        <tbody id="tBody">
+                            @foreach (MyWorkManagerSN.Model.OrderLine line in Model.Lines)
+                            {
+                                MyWorkManagerSN.Model.Product product = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Product>().GetById(userId, line.ProductId);
+                                MyWorkManagerSN.Model.Category cat = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Category>().GetById(userId, product.CategoryId);
+                                <tr>
+                                    <td>@cat.Label - @product.Label</td>
+                                    <td class="trBase" id="qte-@line.ID">@line.Quantity</td>
+                                    <td class="trBase" id="unitPrice-@line.ID">@line.UnitPrice @ViewData["devise"]</td>
+                                    <td class="trBase" id="discount-@line.ID">@line.Discount @ViewData["devise"]</td>
+                                    <td class="trBase" id="amountHt-@line.ID">@line.AmountTotalHT @ViewData["devise"]</td>
+                                    <td class="trBase" id="tva-@line.ID">@line.TVA%</td>
+                                    <td class="trBase" id="amountTtc-@line.ID">@line.AmountTotalTTc @ViewData["devise"]</td>
+                                    <td @hidden>
+                                        <span class="toHideForAdd toHideForEdit"> <span data-productId="@line.ProductId" data-designation="@cat.Label - @product.Label" data-unitPrice="@line.UnitPrice" data-oId="@line.ID" data-discount="@line.Discount" data-amountTotalht="@line.AmountTotalHT" data-amountTotalTTC="@line.AmountTotalTTc" data-tva="@line.TVA" data-acionType="edit" class="editLine"><a href="#" data-toggle="tooltip" data-placement="top" title="Modifier"><i class="fa fa-pencil color-muted m-r-5"></i> </a> </span> <span class="supOrderLine" data-oId="@line.ID"><a data-toggle="tooltip" data-placement="top" title="Supprimer"><i class="fa fa-close color-danger"></i></a></span></span>
+                                    </td>
+
+
+                                </tr>
+                            }
+                            <tr id="trAdd" class="toShowForAdd" hidden>
+                                <td id="designationAdd"></td>
+
+                                <td id="quantityAdd"></td>
+                                <td id="unitpriceAdd"></td>
+                                <td id="discountAdd"></td>
+                                <td id="htAdd"></td>
+                                <td id="tvaAdd"></td>
+                                <td id="ttcAdd"></td>
+
+                                <td id="actionAdd"></td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+
+
+
+                </div>
+                <div class="dropdown toHideForAdd toHideForEdit">
+                    <button id="addLineBtn" type="button" class="btn mb-1 btn-primary" @hidden>Ajouter</button>
+                    <div id="myDropdown" class="dropdown-content">
+                        <div class="autocomplete" style="display: inherit; ">
+                            @{ string functionUrl = "GetProsuctFilteredByLine?OrderId=" + Model.ID;}
+                            <input id="inputAutoComplete" class="form-control input-default" data-controller="Product" data-method="@functionUrl" type="text" name="myCountry" placeholder="Nom produit" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+    <div class="modal fade" id="modalPayment" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Payer la commande</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="paymnetForm">
+                    <div class="modal-body">
+
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Montant en @ViewData["devise"]</label>
+                            <div class="input-group mb-3">
+
+                                <input type="text" class="form-control input-default" id="amountRToPay" placeholder="Montant" required>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-dark" type="button" id="payAll">Tout Payer</button>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Mode de paiement</label>
+                            <select id="paymenModeId" class="form-control">
+
+                                @foreach (MyWorkManagerSN.Model.PaymentMode pm in new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.PaymentMode>().GetAll(p => p.UserId == userId))
+                                {
+                                    <option value="@pm.ID">@pm.Label</option>
+                                }
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" id="PayOrderSubmit" class="btn btn-info">Payer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+   
+    <div id="y">
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+
+   
+    var file = "~/Views/Order/DefaultFacture.html";
+ 
+    $("#y").load("../DefaultFacture.cshtml");
+    console.log($("#y"))
+    var editActivate = false;
+    var lineToEditId = '';
+    $(".supOrderLine").click(function () {
+            var oid = $(this).attr("data-oId");
+
+            trToremove = $(this).parent().parent().parent();
+            supOrderLine(oid, false, trToremove);
+    });
+
+    function editLine(element, jqueryElement) {
+        if (!jqueryElement) {
+            element = $(element);
+        }
+        var lineId = element.attr("data-oId");
+        lineToEditId = lineId;
+        if (!editActivate) {
+            console.log("isi")
+            var qte = $("#qte-" + lineId).html();
+            var discount = $("#discount-" + lineId).html();
+            let length = discount.length;
+            discount = discount.split(" ")[0];
+            $("#qte-" + lineId).html("<input type='number' class='form-control input-default' onchange='qteChangedEdit()' id='oquantityEdit' value='" + qte + "' />");
+            $("#discount-" + lineId).html("<input type='text' class='form-control input-default' onchange='dsctChangedEdit()' id='odiscountEdit' value='" + discount + "' />");
+            editActivate = true;
+            element.parent().removeClass("toHideForEdit");
+            $(".toHideForEdit").attr("hidden", true);
+        } else {
+            var quantityEdit = $("#oquantityEdit").val();
+            var discountEdit = $("#odiscountEdit").val().replace(".", ",");
+            $.post("/Order/EditOrderLine", { OrderId: "@Model.ID", LineId: lineId, Quantity: quantityEdit, Discount: discountEdit }, function (res) {
+                if (res.success) {
+                    $("#qte-" + lineId).html(quantityEdit);
+                    $("#discount-" + lineId).html(discountEdit + " @ViewData["devise"]");
+                    editActivate = false;
+                    $("#AmountTotalOrder").html(res._acts.newAmountTotal)
+                    element.parent().addClass("toHideForEdit");
+                    $(".toHideForEdit").attr("hidden", false);
+                    toastSuccess("Succès", res._acts.title);
+
+
+                } else {
+                    console.log(res)
+                    toastError("Erreur", res._acts.title)
+                }
+
+            })
+        }
+    }
+    function valRestant() {
+        var paid = $("#AmountPaidOrder").html().replace(",", ".");
+        var amountTotal = $("#AmountTotalOrder").html().replace(",", ".");
+
+        paid = parseFloat(paid);
+        amountTotal = parseFloat(amountTotal);
+        return amountTotal - paid;
+    }
+    $("#amountRToPay").change(function () {
+        if (isNaN($("#amountRToPay").val()) || $("#amountRToPay").val() > valRestant()) {
+            $("#amountRToPay").val(0);
+        }
+    }
+    );
+    $("#paymnetForm").submit(function (event) {
+        event.preventDefault();
+        if (document.getElementById('paymnetForm').checkValidity()) {
+            var amount = $("#amountRToPay").val().replace(".", ",");
+            var paymentMode = $("#paymenModeId").val();
+            $.post("/Order/DoPayment", { OrderId:"@Model.ID", PaymentModeID: paymentMode, AmountPaid : amount}, function (res) {
+                if (res.success) {
+                    location.reload();
+                } else {
+                    toastError("Erreur", res._acts.title)
+                }
+            });
+        }
+    });
+    $("#payAll").click(function () {
+        $("#amountRToPay").val(valRestant());
+    });
+    $("#paymentBtn").click(function () {
+        $("#amountRToPay").val(valRestant());
+        $("#modalPayment").modal();
+    });
+
+    $(".editLine").click(function () {
+        editLine($(this),true)
+
+        });
+         function supOrderLine(element, comefromAdd, trToremove=null){
+
+            if (confirm("Vous allez supprimer ce produit!")) {
+                var oId = '';
+                if (comefromAdd) {
+                    trToremove = element.parentNode.parentNode.parentNode;
+
+                      oId = element.getAttribute("data-oId");
+                } else {
+                     oId = element;
+                }
+
+
+                console.log(oId);
+
+                $.post("/Order/RemoveOrderLine", { OrderId: "@Model.ID",LineId: oId }, function (res) {
+                    if (res.success) {
+                        if (comefromAdd) {
+                            trToremove.parentNode.removeChild(trToremove);
+                        }
+                        else {
+                            trToremove.remove();
+                        }
+
+                        $("#AmountTotalOrder").html(res._acts.newAmountTotal)
+                        toastSuccess("Succès", res._acts.title)
+                    } else {
+                        toastError("Erreur", res._acts.title)
+                    }
+
+
+                })
+            }
+        }
+
+        $(".etat").click(function () {
+            var etat = $(this).attr("data-etat");
+            $.post("/Order/UpdateState", { id:"@Model.ID", etat: etat }, function (res) {
+                if (res.success) {
+                    toastSuccess("Succès", res._acts.title);
+                    location.reload();
+                } else {
+                    toastError("Erreur", res._acts.title)
+                }
+
+            });
+        });
+
+    $("#addLineBtn").click(function () {
+        autocomplete(document.getElementById("inputAutoComplete"));
+            document.getElementById("myDropdown").classList.toggle("show");
+        });
+        var tr = $("<tr id='trAdd' class='toShowForAdd' hidden></tr>");
+
+        tr.append("<td id='designationAdd'></td>");
+        tr.append("<td id='quantityAdd'></td>");
+        tr.append("<td id='unitpriceAdd'></td>");
+        tr.append("<td id='discountAdd'></td>");
+        tr.append("<td id='htAdd'></td>");
+        tr.append("<td id='tvaAdd'></td>");
+        tr.append("<td id='ttcAdd'></td>");
+        tr.append("<td id='actionAdd'></td>");
+
+
+        let round = (num, places) => {
+            const x = Math.pow(10, places);
+            return Math.round(num * x) / x;
+    }
+    function qteChangedEdit() {
+            if (isNaN($("#oquantityEdit").val()) || $("#oquantityEdit").val() <= 0) {
+                $("#oquantityEdit").val(1);
+            }
+
+            var unitht = $("#unitPrice-" + lineToEditId).html().split(" ")[0].replace(",", ".");
+            var qte = $("#oquantityEdit").val();
+            var discount = $("#odiscountEdit").val().replace(",", ".");
+            var len = $("#tva-" + lineToEditId).html().length;
+            var tva = Number($("#tva-" + lineToEditId).html().substring(len - 1, 0));
+
+            unitht = parseFloat(unitht);
+            discount = parseFloat(discount);
+            ht = (unitht - discount) * qte;
+            $("#amountHt-" + lineToEditId).html(ht + " @ViewData["devise"]");
+            $("#amountTtc-" + lineToEditId).html(round(ht + ((ht * tva) / 100), 2) + " @ViewData["devise"]");
+
+
+
+        };
+        function dsctChangedEdit() {
+            if (isNaN($("#odiscountEdit").val()) || $("#odiscountEdit").val() < 0) {
+                $("#odiscountEdit").val(0);
+            }
+
+            var unitht = $("#unitPrice-" + lineToEditId).html().split(" ")[0].replace(",", ".");
+            var qte = $("#oquantityEdit").val();
+            var discount = $("#odiscountEdit").val().replace(",", ".");
+            var len = $("#tva-" + lineToEditId).html().length;
+            var tva = Number($("#tva-" + lineToEditId).html().substring(len - 1, 0));
+            unitht = parseFloat(unitht);
+            discount = parseFloat(discount);
+            ht = (unitht - discount) * qte;
+
+            $("#amountHt-" + lineToEditId).html(ht + " @ViewData["devise"]");
+            $("#amountTtc-" + lineToEditId).html(round(ht + ((ht * tva) / 100), 2) + " @ViewData["devise"]");
+
+        };
+
+        function qteChanged() {
+            if (isNaN($("#oquantityAdd").val()) || $("#oquantityAdd").val() <= 0) {
+                ("#oquantityAdd").val(1);
+            }
+
+            var unitht = $("#ounitpriceAdd").val().replace(",", ".");
+            var qte = $("#oquantityAdd").val();
+            var discount = $("#odiscountAdd").val().replace(",", ".");
+
+            var tva = Number($("#otvaAdd").val());
+            unitht = parseFloat(unitht);
+            discount = parseFloat(discount);
+            ht = (unitht - discount) * qte;
+
+            $("#ohtAdd").val(ht);
+            $("#ottcAdd").val(round(ht + ((ht * tva) / 100), 2));
+
+
+
+        };
+        function dsctChanged() {
+            if (isNaN($("#odiscountAdd").val()) || $("#odiscountAdd").val() < 0) {
+                $("#odiscountAdd").val(0);
+            }
+
+            var unitht = $("#ounitpriceAdd").val().replace(",", ".");
+            var qte = $("#oquantityAdd").val();
+            var discount = $("#odiscountAdd").val().replace(",", ".");
+
+            var tva = Number($("#otvaAdd").val());
+            unitht = parseFloat(unitht);
+            discount = parseFloat(discount);
+            ht = (unitht - discount) * qte;
+
+            $("#ohtAdd").val(ht);
+            $("#ottcAdd").val(round(ht + ((ht * tva) / 100), 2));
+
+        };
+        function tvaChanged() {
+            var ht = parseFloat($("#ohtAdd").val());
+            var tva = Number($(this).val());
+            $("#ottcAdd").val(round(ht + ((ht * tva) / 100), 2));
+        };
+
+        function test() {
+            console.log("ici")
+            var product_id = $("#productToAdd").attr("data-oId");
+            var designation = $("#productToAdd").html();
+            var quantityAdd = $("#oquantityAdd").val();
+            var unitpriceAdd = $("#ounitpriceAdd").val().replace(".", ",");
+            var discountAdd = $("#odiscountAdd").val().replace(".", ",");
+            var htAdd = $("#ohtAdd").val().replace(".", ",");
+            var tvaAdd = $("#otvaAdd").val();
+            var ttcAdd = $("#ottcAdd").val().replace(".", ",");
+            var trNewObj = $("<tr></tr>");
+
+            $.post("/Order/AddOrderLine", { OrderId: "@Model.ID", ProductId: product_id, Quantity: quantityAdd, UnitDiscount: discountAdd, PriceHt: htAdd, PriceTTC: ttcAdd }, function (res) {
+                if (res.success) {
+                    $("#AmountTotalOrder").html(res._acts.newAmountTotal)
+                    toastSuccess("Succès", res._acts.title);
+                    trNewObj.append("<td>" + designation + "</td>");
+                    trNewObj.append("<td class='trAdded' id='qte-"+res._acts.oID+"'>" + quantityAdd + "</td>");
+                    trNewObj.append("<td class='trAdded' id='unitPrice-"+res._acts.oID+"'>" + unitpriceAdd + " @ViewData["devise"]"+"</td>");
+                    trNewObj.append("<td class='trAdded' id='discount-"+res._acts.oID+"'>" + discountAdd +" @ViewData["devise"]"+ "</td>");
+                    trNewObj.append("<td class='trAdded'id='amountHt-"+res._acts.oID+"' >" + htAdd + " @ViewData["devise"]" + "</td>");
+                    trNewObj.append("<td class='trAdded' id='tva-"+res._acts.oID+"'>" + tvaAdd + "%</td>");
+                    trNewObj.append("<td class='trAdded' id='amountTtc-"+res._acts.oID+"'>" + ttcAdd + " @ViewData["devise"]" + "</td>");
+                    trNewObj.append("<td >" + "<span class='toHideForAdd'> <span data-productId='" + product_id + "' data-designation='" + designation + "' data-unitPrice='" + unitpriceAdd + "' data-oId='" + res._acts.oID + "' data-discount='" + discountAdd + "' data-amountTotalht='" + htAdd + "' data-amountTotalTTC='" + ttcAdd + "' data-tva='" + tvaAdd + "' data-acionType='edit' class='editLine' onclick='editLine(this,false)'><a href='#' data-toggle='tooltip' data-placement='top' title='Modifier'><i class='fa fa-pencil color-muted m-r-5'></i> </a> </span> <span class='supOrderLine' onclick='supOrderLine(this,true)' data-oId='" + res._acts.oID + "'><a data-toggle='tooltip' data-placement='top' title='Supprimer'><i class='fa fa-close color-danger'></i></a></span></span></td>");
+                    $("#tBody").children().last().remove();
+                    $("#tBody").append(trNewObj);
+                    $("#tBody").append(tr);
+                    $(".toHideForAdd").attr("hidden", false);
+                    $(".toShowForAdd").attr("hidden", true);
+                    $("#myDropdown").removeClass("show");
+                } else {
+                    console.log(res)
+                    toastError("Erreur", res._acts.title)
+                }
+
+            })
+
+
+
+
+    };
+    function  removeLineAdd () {
+        console.log($("#tBody").children().last().remove())
+        console.log(tr)
+            //$("#tBody").children().last().remove();
+        console.log($("#tBody").children().last())
+        $('#trAdd').remove();
+        $("#tBody").append(tr);
+
+        $(".toHideForAdd").attr("hidden", false);
+        $(".toShowForAdd").attr("hidden", true);
+        $("#myDropdown").removeClass("show");
+     };
+
+
+
+    function autocomplete(inp, seachType = null) {
+        /*the autocomplete function takes two arguments,
+        the text field element and an array of possible autocompleted values:*/
+        var currentFocus;
+        var controller = inp.getAttribute("data-controller");
+        var method = inp.getAttribute("data-method");
+        var url = "/" + controller + "/GetAll";
+        if (method != null) {
+            url = "/" + controller + "/" + method;
+        }
+        var arr = []
+        $.get(url, function (res) {
+            console.log(url)
+            console.log(res)
+            if (res.success) {
+                arr = res._acts.list;
+            } else {
+
+            }
+
+        });
+
+        /*execute a function when someone writes in the text field:*/
+        inp.addEventListener("input", function (e) {
+
+            var a, b, i, val = this.value;
+            /*close any already open lists of autocompleted values*/
+            closeAllLists();
+            if (!val) { return false; }
+            currentFocus = -1;
+            /*create a DIV element that will contain the items (values):*/
+            a = document.createElement("DIV");
+            a.setAttribute("id", this.id + "autocomplete-list");
+            a.setAttribute("class", "autocomplete-items");
+            /*append the DIV element as a child of the autocomplete container:*/
+            this.parentNode.appendChild(a);
+            /*for each item in the array...*/
+            for (i = 0; i < arr.length; i++) {
+                /*check if the item starts with the same letters as the text field value:*/
+                var strToUse = "";
+                switch (controller) {
+                    case "Customer": {
+                        if (seachType == "Prenom_Nom") {
+                            strToUse = arr[i].Surname + " " + arr[i].Name;
+                        } else if (seachType == "Email") {
+                            strToUse = arr[i].Email;
+                        } else {
+                            strToUse = arr[i].Mobile;
+                        }
+
+                    }; break;
+                    default: strToUse = arr[i].Label;
+                }
+                if (strToUse.toUpperCase().includes(val.toUpperCase())) {
+                    /*create a DIV element for each matching element:*/
+                    b = document.createElement("DIV");
+                    /*make the matching letters bold:*/
+                    b.innerHTML = strToUse.substr(0, val.length);
+                    b.innerHTML += strToUse.substr(val.length);
+                    /*insert a input field that will hold the current array item's value:*/
+                    b.innerHTML += "<input type='hidden' value='" + strToUse + "'>";
+                    b.innerHTML += "<input id='" + controller + "Id' type='hidden' value='" + arr[i].ID + "'>";
+                    /*execute a function when someone clicks on the item value (DIV element):*/
+                    b.addEventListener("click", function (e) {
+                        /*insert the value for the autocomplete text field:*/
+                        inp.setAttribute("data-id", this.getElementsByTagName("input")[1].value);
+                        console.log(this.getElementsByTagName("input")[1].value);
+
+
+                        var product_id = this.getElementsByTagName("input")[1].value;
+
+                        $.post("/Product/Get", { id: product_id }, function (res) {
+                            if (res.success) {
+                                var catLabel = res._acts.catLabel;
+                                var oProduct = res._acts.product;
+                                console.log($("#trAdd"));
+
+
+                                $("#designationAdd").html("<span id='productToAdd' data-oId=" + oProduct.ID + ">" + catLabel + " - " + oProduct.Label + "</span>");
+                                $("#quantityAdd").html("<input type='number' class='form-control input-default' onchange='qteChanged()' id='oquantityAdd' value='" + 1 + "' />");
+                                $("#unitpriceAdd").html("<input type='text' class='form-control input-default' disabled  id='ounitpriceAdd' value='" + oProduct.PriceHT + "' />");
+                                $("#discountAdd").html("<input type='text' class='form-control input-default' onchange='dsctChanged()' id='odiscountAdd' value='" + 0 + "' />");
+                                $("#htAdd").html("<input type='text' class='form-control input-default' disabled  id='ohtAdd' value='" + oProduct.PriceHT + "' />");
+                                $("#tvaAdd").html("<select class='form-control input-default'  id='otvaAdd' disabled style='width: max-content'> <option value='0'>0%</option><option value ='5'>5%</option><option value='10'>10%</option><option value='20'>20%</option> </select>");   //value='" + oProduct.TVA + "'
+                                $("#ttcAdd").html("<input type='text' class='form-control input-default' disabled onchange='ttcChanged()'  id='ottcAdd' value='" + oProduct.PriceTtc + "' />");
+                                $("#actionAdd").html("<span> <span  id='confirmAddLine' class=''><a   id='confirmAddLine'onclick='test()' data-toggle='tooltip' data-placement='top' title='Ajouter'><i class='fas fa-check color-green m-r-5'></i> </a> </span> <span  ><a  id='supLineAdd' onclick='removeLineAdd()'  data-toggle='tooltip' data-placement='top' title='Supprimer'><i class='fa fa-close color-danger'></i></a></span></span>")
+                                $("#otvaAdd").val(oProduct.TVA);
+                                $(".toHideForAdd").attr("hidden", true);
+                                $(".toShowForAdd").attr("hidden", false);
+
+
+                            } else {
+                                console.log(res)
+                                toastError("Erreur", res._acts.title)
+                            }
+
+                        })
+
+
+                        /*close the list of autocompleted values,
+                        (or any other open lists of autocompleted values:*/
+                        closeAllLists();
+                    });
+                    a.appendChild(b);
+                }
+            }
+        });
+        /*execute a function presses a key on the keyboard:*/
+        inp.addEventListener("keydown", function (e) {
+            var x = document.getElementById(this.id + "autocomplete-list");
+            if (x) x = x.getElementsByTagName("div");
+            if (e.keyCode == 40) {
+                /*If the arrow DOWN key is pressed,
+                increase the currentFocus variable:*/
+                currentFocus++;
+                /*and and make the current item more visible:*/
+                addActive(x);
+            } else if (e.keyCode == 38) { //up
+                /*If the arrow UP key is pressed,
+                decrease the currentFocus variable:*/
+                currentFocus--;
+                /*and and make the current item more visible:*/
+                addActive(x);
+            } else if (e.keyCode == 13) {
+                /*If the ENTER key is pressed, prevent the form from being submitted,*/
+                e.preventDefault();
+                if (currentFocus > -1) {
+                    /*and simulate a click on the "active" item:*/
+                    if (x) x[currentFocus].click();
+                }
+            }
+        });
+        function addActive(x) {
+            /*a function to classify an item as "active":*/
+            if (!x) return false;
+            /*start by removing the "active" class on all items:*/
+            removeActive(x);
+            if (currentFocus >= x.length) currentFocus = 0;
+            if (currentFocus < 0) currentFocus = (x.length - 1);
+            /*add class "autocomplete-active":*/
+            x[currentFocus].classList.add("autocomplete-active");
+        }
+        function removeActive(x) {
+            /*a function to remove the "active" class from all autocomplete items:*/
+            for (var i = 0; i < x.length; i++) {
+                x[i].classList.remove("autocomplete-active");
+            }
+        }
+        function closeAllLists(elmnt) {
+            /*close all autocomplete lists in the document,
+            except the one passed as an argument:*/
+            var x = document.getElementsByClassName("autocomplete-items");
+            for (var i = 0; i < x.length; i++) {
+                if (elmnt != x[i] && elmnt != inp) {
+                    x[i].parentNode.removeChild(x[i]);
+                }
+            }
+        }
+        /*execute a function when someone clicks in the document:*/
+        document.addEventListener("click", function (e) {
+            closeAllLists(e.target);
+        });
+
+    }
+
+
+
+</script>
