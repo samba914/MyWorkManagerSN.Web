@@ -1,7 +1,7 @@
 # MyWorkManagerSN.Web
 
 ### Opérations base de donnée
-La majeure partie des requêtes vers la bases de donnée se sont à travers la classe générique DBManager<T> qui se trouve dans la bibliothèque Service.
+La majeure partie des requêtes vers la base de données se font à travers la classe générique DBManager<T> qui se trouve dans la bibliothèque Service.
 Pour ajouter un element dans la base de donnée : 
 * on utilise la méthode Add qui prend en parèmetre l'élément à ajouter. Ex d'utilsation 
 ```
@@ -49,7 +49,11 @@ Exemple :
   <input id="inputAutoComplete" class="form-control input-default" data-controller="Order" data-methode="GetOrderByState?state='pending'" type="text" autocomplete="off"> 
   C'est l' url suivante qui sera appelée : "/Order/GetOrderByState?state='pending" qui renvoie donc toutes les commandes ayant le status en cours et créées par le user currrent
 ```
-  
+* pour rattacher le input ajouté au comportement autocomplete, il faut faire appel à la fonction autocomplete(inputDOM, searchtype=null) au niveau du script.
+Cette fonction permet donc de simuler le caractère autocomplete sur le input passé en paramètre. Le paramètre searchType est actuellement configuré que pour data-controller=Customer.
+En effet par défaut les éléments affichaient dans la liste du autocomplete sont recherchés à partir de leur label. Cependant La classe customer n'a pas d'attribut Label, c'est dans ce qu'a que le paramètre searchType intervient. Si searchType = "Prenom_Nom" le client sera recherché à partir de son nom et prénom. Si searchType = "Email" , le client sera cherché à partir de som email et si searchType = "Mobile" ça sera à partir de son Mobile.
+
+Pour donc rajouter d'autres propositions de recherche sur le autocomplete, il faut donc modifier le script autocomplete.js qui se trouve dans wwwRoot/js. 
 
   
 ### Les options
