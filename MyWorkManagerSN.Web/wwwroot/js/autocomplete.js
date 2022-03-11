@@ -54,10 +54,8 @@
                 }; break;
                 default: strToUse = arr[i].label;
             }
-            console.log(strToUse);
-            console.log("ds")
             
-            if (strToUse.toUpperCase().includes(val.toUpperCase())) {
+            if (strToUse!=null &&  strToUse.toUpperCase().includes(val.toUpperCase())) {
                 /*create a DIV element for each matching element:*/
                 b = document.createElement("DIV");
                 /*make the matching letters bold:*/

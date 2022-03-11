@@ -27,6 +27,7 @@ namespace MyWorkManagerSN.Model
         {
             modelBuilder.Entity<User>().OwnsOne(u => u.Address);
             modelBuilder.Entity<Customer>().OwnsOne(c => c.Address);
+            modelBuilder.Entity<User>().OwnsOne(u=>u.AccountOptions);
         }
 
 

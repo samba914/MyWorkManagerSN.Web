@@ -124,7 +124,7 @@
         <div class="col-lg-4 col-xs-3">
             <div class="card amount" style="border: double black; width: 70%; background-color: transparent;">
                 <div class="card-body amountCard">
-                    <h2 class="card-title"><i class="fas fa-user"></i> Client</h2>
+                    <h2 class="card-title"><i class="fa fa-user"></i> Client</h2>
                     <div class="text-center">
                         <b>@customer.Surname @customer.Name</b>
                         <p class="mb-0">@customer.Email</p>
@@ -304,12 +304,6 @@
 
 <script type="text/javascript">
 
-
-   
-    var file = "~/Views/Order/DefaultFacture.html";
- 
-    $("#y").load("../DefaultFacture.cshtml");
-    console.log($("#y"))
     var editActivate = false;
     var lineToEditId = '';
     $(".supOrderLine").click(function () {
@@ -617,8 +611,6 @@
         }
         var arr = []
         $.get(url, function (res) {
-            console.log(url)
-            console.log(res)
             if (res.success) {
                 arr = res._acts.list;
             } else {
@@ -648,15 +640,15 @@
                 switch (controller) {
                     case "Customer": {
                         if (seachType == "Prenom_Nom") {
-                            strToUse = arr[i].Surname + " " + arr[i].Name;
+                            strToUse = arr[i].surname + " " + arr[i].name;
                         } else if (seachType == "Email") {
-                            strToUse = arr[i].Email;
+                            strToUse = arr[i].email;
                         } else {
-                            strToUse = arr[i].Mobile;
+                            strToUse = arr[i].mobile;
                         }
 
                     }; break;
-                    default: strToUse = arr[i].Label;
+                    default: strToUse = arr[i].label;
                 }
                 if (strToUse.toUpperCase().includes(val.toUpperCase())) {
                     /*create a DIV element for each matching element:*/
@@ -666,7 +658,7 @@
                     b.innerHTML += strToUse.substr(val.length);
                     /*insert a input field that will hold the current array item's value:*/
                     b.innerHTML += "<input type='hidden' value='" + strToUse + "'>";
-                    b.innerHTML += "<input id='" + controller + "Id' type='hidden' value='" + arr[i].ID + "'>";
+                    b.innerHTML += "<input id='" + controller + "Id' type='hidden' value='" + arr[i].id + "'>";
                     /*execute a function when someone clicks on the item value (DIV element):*/
                     b.addEventListener("click", function (e) {
                         /*insert the value for the autocomplete text field:*/
@@ -676,22 +668,22 @@
 
                         var product_id = this.getElementsByTagName("input")[1].value;
 
-                        $.post("/Product/Get", { id: product_id }, function (res) {
+                        $.get("/Product/Get/"+product_id, function (res) {
                             if (res.success) {
                                 var catLabel = res._acts.catLabel;
                                 var oProduct = res._acts.product;
                                 console.log($("#trAdd"));
 
 
-                                $("#designationAdd").html("<span id='productToAdd' data-oId=" + oProduct.ID + ">" + catLabel + " - " + oProduct.Label + "</span>");
+                                $("#designationAdd").html("<span id='productToAdd' data-oId=" + oProduct.id + ">" + catLabel + " - " + oProduct.label + "</span>");
                                 $("#quantityAdd").html("<input type='number' class='form-control input-default' onchange='qteChanged()' id='oquantityAdd' value='" + 1 + "' />");
-                                $("#unitpriceAdd").html("<input type='text' class='form-control input-default' disabled  id='ounitpriceAdd' value='" + oProduct.PriceHT + "' />");
+                                $("#unitpriceAdd").html("<input type='text' class='form-control input-default' disabled  id='ounitpriceAdd' value='" + oProduct.priceHT + "' />");
                                 $("#discountAdd").html("<input type='text' class='form-control input-default' onchange='dsctChanged()' id='odiscountAdd' value='" + 0 + "' />");
-                                $("#htAdd").html("<input type='text' class='form-control input-default' disabled  id='ohtAdd' value='" + oProduct.PriceHT + "' />");
+                                $("#htAdd").html("<input type='text' class='form-control input-default' disabled  id='ohtAdd' value='" + oProduct.priceHT + "' />");
                                 $("#tvaAdd").html("<select class='form-control input-default'  id='otvaAdd' disabled style='width: max-content'> <option value='0'>0%</option><option value ='5'>5%</option><option value='10'>10%</option><option value='20'>20%</option> </select>");   //value='" + oProduct.TVA + "'
-                                $("#ttcAdd").html("<input type='text' class='form-control input-default' disabled onchange='ttcChanged()'  id='ottcAdd' value='" + oProduct.PriceTtc + "' />");
-                                $("#actionAdd").html("<span> <span  id='confirmAddLine' class=''><a   id='confirmAddLine'onclick='test()' data-toggle='tooltip' data-placement='top' title='Ajouter'><i class='fas fa-check color-green m-r-5'></i> </a> </span> <span  ><a  id='supLineAdd' onclick='removeLineAdd()'  data-toggle='tooltip' data-placement='top' title='Supprimer'><i class='fa fa-close color-danger'></i></a></span></span>")
-                                $("#otvaAdd").val(oProduct.TVA);
+                                $("#ttcAdd").html("<input type='text' class='form-control input-default' disabled onchange='ttcChanged()'  id='ottcAdd' value='" + oProduct.priceTtc + "' />");
+                                $("#actionAdd").html("<span> <span  id='confirmAddLine' class=''><a   id='confirmAddLine'onclick='test()' data-toggle='tooltip' data-placement='top' title='Ajouter'><i class='fa fa-check color-green m-r-5'></i> </a> </span> <span  ><a  id='supLineAdd' onclick='removeLineAdd()'  data-toggle='tooltip' data-placement='top' title='Supprimer'><i class='fa fa-close color-danger'></i></a></span></span>")
+                                $("#otvaAdd").val(oProduct.tva);
                                 $(".toHideForAdd").attr("hidden", true);
                                 $(".toShowForAdd").attr("hidden", false);
 

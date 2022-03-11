@@ -17,10 +17,10 @@ $("#addNewCustomer").click(function () {
 });
 
 
-$("#catForm").submit(function (event) {
+$("#formCustomer").submit(function (event) {
 
     event.preventDefault();
-    if (document.getElementById('catForm').checkValidity()) {
+    if (document.getElementById('formCustomer').checkValidity()) {
         var name = $("#oName").val();
         var surname = $("#oSurname").val();
         var email = $("#oEmail").val();
@@ -31,12 +31,14 @@ $("#catForm").submit(function (event) {
             name: name, surname: surname, email: email, mobile: mobile
         }, function (res) {
             if (res.success) {
-                $("#inputAutoComplete").attr("data-id", res._acts.CustomerId);
-                $("#inputAutoComplete").val(res._acts.Surname + " " + res._acts.Name);
-                autocomplete(document.getElementById("inputAutoComplete"), seachType);
+                console.log(res._acts)
+                $("#inputAutoComplete").attr("data-id", res._acts.customerId);
+                $("#inputAutoComplete").val(res._acts.surname + " " + res._acts.name);
+                $("input[name='" + "searchType" + "'][value='" + "Prenom_Nom" + "']").prop('checked', true);
+                autocomplete(document.getElementById("inputAutoComplete"), "Prenom_Nom");
                 toastSuccess("Succès", res._acts.title);
             } else {
-                console.log(res)
+                
                 toastError("Erreur", res._acts.title)
             }
             $("#exampleModalCustomer").modal("hide");

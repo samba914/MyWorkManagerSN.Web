@@ -45,7 +45,7 @@ namespace MyWorkManagerSN.Controllers.Custom
                 {
                     Address oAdress = new Address { Rue = rue, Ville = ville,Complement=complement, CodePostal = codepostal, PaysCode = pays };
                     customer.Address = oAdress;
-                    new DbManager<Customer>().Update(customer);
+                    new CustomerService().UpdateUserAdress(customer);
                     return Json(new { success = true, _acts = new { title = "Adresse mise à jour" } });
                 }
             }

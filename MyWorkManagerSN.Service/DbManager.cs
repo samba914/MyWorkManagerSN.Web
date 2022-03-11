@@ -41,6 +41,30 @@ namespace MyWorkManagerSN.Service
                 context.SaveChanges();
             }
         }
+        public void UpdateValue(string elementId,string userId,string property, object value)
+        {
+            using (var context = new MyEntitiesContext())
+            {
+                E el = context.Set<E>().Where(e => e.UserId == userId && e.ID == elementId).FirstOrDefault();
+                if (el != null)
+                {
+                    context.Entry(el).Property(property).CurrentValue = value;
+                }
+                context.SaveChanges();
+            }
+        }
+        public void GlobalUpdate(E element)
+        {
+            using (var context = new MyEntitiesContext())
+            {
+
+                if (element != null)
+                {
+                    context.Update(element);
+                }
+                context.SaveChanges();
+            }
+        }
         public void AddOrderLine(Order o, OrderLine oLine)
         {
             using (var context = new MyEntitiesContext())

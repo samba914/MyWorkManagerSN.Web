@@ -21,5 +21,6 @@ namespace MyWorkManagerSN.Model
         public Address? Address { get; set; }
         public string? CompanyName { get; set; }
         public bool ShowImageOnInvoice { get; set; }
+        public AccountOptions AccountOptions { get; set; }
     }
 }

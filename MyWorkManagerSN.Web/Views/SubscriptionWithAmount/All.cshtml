@@ -1,6 +1,6 @@
 ﻿@model List<MyWorkManagerSN.Model.SubscriptionWithAmount>
 @{
-    ViewBag.Title = "All";
+    ViewData["Title"] = "Abonnement";
     string userId = ViewData["userId"] as string;
 }
 
@@ -75,8 +75,9 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+                 <form id="catForm">
                 <div class="modal-body">
-                    <form id="catForm">
+                   
                         <div class="form-group">
                             <div id="customerSelector">
                                 <p>Rechercher un client par : </p>
@@ -90,8 +91,8 @@
                             <br />
                             <div class="autocomplete" style="display: inline-flex; width: -webkit-fill-available;">
                                 @{ string functionUrl = "GetAllCustomerFromSub";}
-                                <input id="inputAutoComplete" class="form-control input-default" data-controller="Customer" data-method="@functionUrl" type="text" name="myCountry" placeholder="Client" autocomplete="off">
-                                <a id="addNewCustomer" type="button" href="#" class="btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fas fa-plus-circle"></i></a>
+                                <input id="inputAutoComplete" class="form-control input-default" data-controller="Customer" data-method="@functionUrl" type="text" name="myCountry" placeholder="Client" autocomplete="off" required>
+                                <a id="addNewCustomer" type="button" href="#" class="btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a>
                             </div>
                             <br />
 
@@ -100,20 +101,26 @@
                             <label for="message-text" class="col-form-label">Montant</label>
                             <input type="text" class="form-control input-default" id="oAmount" placeholder="Montant" required>
                         </div>
-                    </form>
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
                     <button type="submit" id="editModelSubmit" class="btn btn-info">Ajouter</button>
                 </div>
+                </form>
             </div>
         </div>
     </div>
-    @Html.Partial("../Customer/PartialCreateCustomer")
+    <Partial name="../Customer/PartialCreateCustomer"/>
 </div>
-<script type="text/javascript" src="~/Scripts/customJS/createCustomer.js"></script>
+<script type="text/javascript" src="~/js/createCustomer.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
+        $("#oAmount").change(function () {
+             if (isNaN($("#oAmount").val())) {
+                    $("#oAmount").val(0);
+                }
+         });
         autocomplete(document.getElementById("inputAutoComplete"), "Prenom_Nom");
         const buttons = document.querySelectorAll("input[type='radio']");
         // adding event to all radio buttons
@@ -165,12 +172,7 @@
             $("#exampleModals").modal();
 
         });
-        $("#editModelSubmit").click(function () {
-            console.log("hellos")
-            $("#catForm").submit();
-
-
-        });
+      
         $("#catForm").submit(function (event) {
 
             event.preventDefault();
@@ -178,6 +180,8 @@
                 var type = $("#editModelSubmit").attr("data-acionType");
                 var customerId = $("#inputAutoComplete").attr("data-id");
                 var amount = $("#oAmount").val().replace(".", ",");
+                console.log(customerId)
+                console.log(amount)
                 if (type == "add") {
                     $.post("/SubscriptionWithAmount/Add", { CustomerId: customerId, Amount: amount }, function (res) {
                         if (res.success) {

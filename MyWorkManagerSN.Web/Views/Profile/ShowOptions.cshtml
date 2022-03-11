@@ -1,0 +1,71 @@
+﻿
+@{
+    Layout = "_LayoutSettings";
+    ViewData["Title"] = "Options";
+
+    MyWorkManagerSN.Model.User user = ViewData["user"] as MyWorkManagerSN.Model.User;
+    IDictionary<string, string> optionsName = new Dictionary<string, string>();
+    optionsName.Add("ActiveSubWithAmount", "Abonnement avec un montant");
+
+}
+<style>
+    input[type="checkbox"]:after {
+        border: 1px solid #afabab;
+    }
+    
+    #imageUpload {
+        display: none;
+    }
+
+    #profileImage {
+        cursor: pointer;
+    }
+</style>
+
+<div class="content-body" style="margin-left:0; padding-top: 3%">
+    <h2 style="margin:0 5% 2% 5%">Options</h2>
+    <div class="card" style="margin:0 5%">
+        
+        <div class="card-body">
+            <div class="row">
+                @foreach(System.Reflection.PropertyInfo property in typeof(MyWorkManagerSN.Model.AccountOptions).GetProperties())
+                {
+                    <div class="col-4" style="font-size: 1rem;">
+                            @optionsName[property.Name]
+                    </div>
+                    
+                    bool value = (bool) property.GetValue(user.AccountOptions, null) ;
+                    string ckeckedOption ="";
+                    if (value )
+                    {
+                        ckeckedOption = "checked";
+                    }
+                    
+                    <div class="col-8">
+                        <input id="activeSubAmount" class="options" type="checkbox"  data-property="ActiveSubWithAmount" @ckeckedOption/>
+                    </div>
+                }
+                
+
+            </div>
+        </div>
+    </div>
+   
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".options").change(function(event){
+            var checked = $(this).is(':checked');
+            var property = $(this).attr("data-property");
+            $.post("/User/UpdateOptions",{optionProprety:property, value:checked},function (res){
+                if (res.success) {
+                        toastSuccess("Succès", res._acts.title)                
+                    } else {
+
+                        toastError("Erreur", res._acts.title)
+                    }
+            });
+        });
+    });
+</script>

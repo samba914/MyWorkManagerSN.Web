@@ -125,7 +125,9 @@ namespace MyWorkManagerSN.Web.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
-                    new DbManager<User>().Add(new User { Devise = "", Username = Input.UserName, UserId = user.Id, Email = Input.Email, Address = new Address()});
+                    AccountOptions aO= new AccountOptions();
+                    aO.ActiveSubWithAmount = false;
+                    new DbManager<User>().Add(new User { Devise = "", Username = Input.UserName, UserId = user.Id, Email = Input.Email,AccountOptions= aO, Address = new Address()});
                     PaymentMode paymentModeESP = new PaymentMode { UserId = user.Id, Code = "ESP", Label = "Espèces" };
                     PaymentMode paymentModeCB = new PaymentMode { UserId = user.Id, Code = "CB", Label = "Carte Bancaire" };
                     Customer customer = new Customer { UserId = user.Id, Name = "Anonyme", Surname = "Client", Email = "", Mobile = "", Address = new Address() };

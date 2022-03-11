@@ -30,6 +30,14 @@ namespace MyWorkManagerSN.Web.Controllers.Custom
             ViewData["imageUrl"] = imageUrl;
             return View();
         }
+        public IActionResult ShowOptions()
+        {
+            string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            User user = new Service.DbManager<User>().Get(u => u.UserId == userId);           
+            ViewData["user"] = user;
+
+            return View();
+        }
         [HttpPost]
         public ActionResult ChangeProfileData(string Mobile, string CompanyName, string Devise)
         {

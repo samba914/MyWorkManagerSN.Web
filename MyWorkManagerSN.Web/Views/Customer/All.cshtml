@@ -55,7 +55,7 @@
                                     <td>@cl.Email</td>
                                     <td>@cl.Mobile</td>
                                     @if(cl.Address!=null){
-                                        <td>@cl.Address.Rue, @cl.Address.Ville, @cl.Address.Complement, @cl.Address.CodePostal, @cl.Address.PaysCode <a  data-rue="@cl.Address.Rue" data-ville="@cl.Address.Ville" data-codepostal="@cl.Address.CodePostal" data-pays="@cl.Address.PaysCode" data-oId="@cl.ID" data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" type="button" href="#" class="addAdrsbtn btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a></td>
+                                        <td>@cl.Address.Rue, @cl.Address.Ville, @cl.Address.Complement, @cl.Address.CodePostal, @cl.Address.PaysCode <a  data-complement="@cl.Address.Complement" data-rue="@cl.Address.Rue" data-ville="@cl.Address.Ville" data-codepostal="@cl.Address.CodePostal" data-pays="@cl.Address.PaysCode" data-oId="@cl.ID" data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" type="button" href="#" class="addAdrsbtn btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a></td>
                                     }else{
                                          <td> <a  data-rue="" data-ville="" data-codepostal="" data-pays="" data-oId="@cl.ID" data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" type="button" href="#" class="addAdrsbtn btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a></td>
                                     }
@@ -97,7 +97,7 @@
                             <input type="text" class="form-control input-default" id="oRue" placeholder="Numero et nom de rue" required>
 
                             <label for="recipient-name" class="col-form-label">Complément</label>
-                            <input type="text" class="form-control input-default" id="oComplement" placeholder="Complément d'adresse'" >
+                            <input type="text" class="form-control input-default" id="oComplement" placeholder="Complément d'adresse" >
 
                             <label for="message-text" class="col-form-label">Ville</label>
                             <input type="text" class="form-control input-default" id="oVille" placeholder="Ville" required>
@@ -129,7 +129,8 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-      
+     
+
         $("#addAdrsFrom").submit(function (event) {
             event.preventDefault();
             if (document.getElementById('addAdrsFrom').checkValidity()) {
@@ -164,10 +165,20 @@
             for (i = 0; i < tr.length; i++) {
                 td = tr[i].getElementsByTagName("td")[0];
                 td2 = tr[i].getElementsByTagName("td")[1];
-                if (td || td2) {
+                td3 = tr[i].getElementsByTagName("td")[2];
+                td4 = tr[i].getElementsByTagName("td")[3];
+                td5 = tr[i].getElementsByTagName("td")[4];
+                td6 = tr[i].getElementsByTagName("td")[5];
+                td7 = tr[i].getElementsByTagName("td")[6];
+                if (td || td2 || td3 || td4 || td5 || td6 || td7) {
                     txtValue = td.textContent || td.innerText;
                     txtValue2 = td2.textContent || td2.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1) {
+                    txtValue3 = td3.textContent || td3.innerText;
+                    txtValue4 = td4.textContent || td4.innerText;
+                    txtValue5 = td5.textContent || td5.innerText;
+                    txtValue6 = td6.textContent || td6.innerText;
+                    txtValue7 = td7.textContent || td7.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1 || txtValue3.toUpperCase().indexOf(filter) > -1 || txtValue4.toUpperCase().indexOf(filter) > -1 || txtValue5.toUpperCase().indexOf(filter) > -1 || txtValue6.toUpperCase().indexOf(filter) > -1 || txtValue7.toUpperCase().indexOf(filter) > -1) {
                         tr[i].style.display = "";
                     } else {
                         tr[i].style.display = "none";
@@ -176,12 +187,13 @@
             }
         });
         $(".action").click(function () {
-            console.log("test")
+       
             if ($(this).attr("data-acionType") == "edit") {
                 $("#ModalLabel").html("Modifier votre cleint");
                 $("#editModelCustomerSubmit").html("Modifier");
                 $("#editModelCustomerSubmit").attr("data-acionType", "edit");
                 var name = $(this).attr("data-name");
+                var complement = $(this).attr("data-complement");
                 var surname = $(this).attr("data-surname");
                 var email = $(this).attr("data-email");
                 var mobile = $(this).attr("data-mobile");
@@ -191,6 +203,7 @@
                 $("#oEmail").val(email);
                 $("#oMobile").val(mobile);
                 $("#oAddress").val(address);
+                $("#oComplement").val(complement);
                 currentId = $(this).attr("data-oId");
 
             } else {
@@ -210,10 +223,10 @@
 
 
 
-        $("#catForm").submit(function (event) {
+        $("#formCustomer").submit(function (event) {
 
             event.preventDefault();
-            if (document.getElementById('catForm').checkValidity()) {
+            if (document.getElementById('formCustomer').checkValidity()) {
                 var type = $("#editModelCustomerSubmit").attr("data-acionType");
                 var name = $("#oName").val();
                 var surname = $("#oSurname").val();

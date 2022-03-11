@@ -1,6 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@using System.Security.Claims;
+@{
+    string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+     MyWorkManagerSN.Model.User user = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.User>().Get(u => u.UserId == userId);
+}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -106,14 +111,15 @@
                                 <i class="fa fa-cart-plus"></i><span class="nav-text">Commandes</span>
                             </a>
                         </li>
-                        <li class="dashbard" data-page="Product">
-                            <a class="has-arrow" href="@Url.Action("All","Product")" aria-expanded="false">
-                                <i class="fa fa-cubes"></i><span class="nav-text">Produits</span>
-                            </a>
-                        </li>
+                        
                         <li class="dashbard" data-page="Customer">
                             <a class="has-arrow" href="@Url.Action("All","Customer")" aria-expanded="false">
                                 <i class="fa fa-users"></i><span class="nav-text">Clients</span>
+                            </a>
+                        </li>
+                        <li class="dashbard" data-page="Product">
+                            <a class="has-arrow" href="@Url.Action("All","Product")" aria-expanded="false">
+                                <i class="fa fa-cubes"></i><span class="nav-text">Produits</span>
                             </a>
                         </li>
                         <li class="dashbard" data-page="Category">
@@ -121,11 +127,15 @@
                                 <i class="fa fa-tag"></i><span class="nav-text">Catégories</span>
                             </a>
                         </li>
-                        <li class="dashbard" data-page="Category">
-                            <a class="has-arrow" href="@Url.Action("All","SubscriptionWithAmount")" aria-expanded="false">
-                                <i class="fa fa-calendar-check-o"></i><span class="nav-text">Abonnements</span>
-                            </a>
-                        </li>
+                        @if(user.AccountOptions!= null && user.AccountOptions.ActiveSubWithAmount)
+                        {
+                             <li class="dashbard" data-page="Category">
+                                <a class="has-arrow" href="@Url.Action("All","SubscriptionWithAmount")" aria-expanded="false">
+                                    <i class="fa fa-calendar-check-o"></i><span class="nav-text">Abonnements</span>
+                                </a>
+                             </li>
+                        }
+                       
                         
 
 

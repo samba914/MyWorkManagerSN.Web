@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Toutes les commandes";
     string userId = ViewData["userId"] as string;
+    MyWorkManagerSN.Model.User user =  ViewData["user"] as MyWorkManagerSN.Model.User;
 }
 
 
@@ -129,12 +130,14 @@
                 </div>
                 <form id="catForm">
                 <div class="modal-body">
-                    <div style="text-align-last: center">
-                        <button id="modeStandard" type="button" class="btn mb-1 btn-outline-primary orderMode" data-modeIsSub="false">Standard</button>
-                        <button id="modeIsSub" type="button" class="btn mb-1 btn-outline-primary orderMode modeNotSelected" data-modeIsSub="true">Abonnement</button>
-                    </div>
-                    <br/>
-                    
+                        @if (user.AccountOptions != null && user.AccountOptions.ActiveSubWithAmount)
+                        {
+                            <div style="text-align-last: center">
+                                <button id="modeStandard" type="button" class="btn mb-1 btn-outline-primary orderMode" data-modeIsSub="false">Standard</button>
+                                <button id="modeIsSub" type="button" class="btn mb-1 btn-outline-primary orderMode modeNotSelected" data-modeIsSub="true">Abonnement</button>
+                            </div>
+                            <br/>
+                        }
                         <p>Rechercher un client par : </p>
                         <input type="radio" name="searchType" id="searchType1" value="Prenom_Nom" checked>
                         <label class="mr-3" for="searchType1">Prénom Nom</label>
@@ -264,7 +267,8 @@
         $("input").removeAttr('readonly');
         $("#datepickerCustom").attr("readonly", true);
 
-        $("#catForm").submit(function () {
+        $("#catForm").submit(function (event) {
+            event.preventDefault();
             if(document.getElementById('catForm').checkValidity()){
                 $.post("/Order/CreateOrder", { date: $("#datepickerCustom").val(), customerId: $("#inputAutoComplete").attr("data-id"), isSubMode: IsSubscription }, function (res) {
                 if (res.success) {
