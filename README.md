@@ -11,7 +11,7 @@ Pour ajouter un element dans la base de donnée :
 
  Pour modifier un élément il y a plusieurs méthodes: 
   * la méthode Update(E element) qui fonctionne de la même manière que le Add. Avantage: seul les champs modifiés sont considérés donc gain de performance!
-  * la méthode GlobalUpdate(E element) cette méthode est appelée de la même manière que la métthode Update simple. ça particularité est le fait que pour la modification toutes les propriétés de l'élement seront parcourues et non pas seulement les champs modifiés. En général pour une modification dont l'un des champs modifiés est un champ de type objet (owned), on utilisera cette méthode pour faire la modification.
+  * la méthode GlobalUpdate(E element) cette méthode est appelée de la même manière que la méthode Update simple. ça particularité est le fait que pour la modification toutes les propriétés de l'élement seront parcourues et non pas seulement les champs modifiés. En général pour une modification dont l'un des champs modifiés est un champ de type objet (owned), on utilisera cette méthode pour faire la modification.
   * la méthode UpdateValue(string elementId,string userId,string property, object value), cette méthode permet la modification d'un seul champs d'un objet. (champs de type primitif). 
   ```
   elementId : l'id de l'élément à modifier
@@ -29,7 +29,7 @@ Pour ajouter un element dans la base de donnée :
 Ce composant permet d'avoir une liste de choix correspondant à un texte lorqu'on tape un texte dans un input.
 Mode d'utilisation
 ```
-  Templae : 
+  Template  : 
  <div class="autocomplete" style="display: inline-flex; width: -webkit-fill-available;">
     <input id="inputAutoComplete" class="form-control input-default" data-controller="Category" type="text" required name="myCountry" placeholder="Catégorie" autocomplete="off">   </div>
   Script : 
