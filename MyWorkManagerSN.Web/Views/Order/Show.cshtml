@@ -168,8 +168,10 @@
                 <button type="button" class="etat btn btn-primary" data-id="@etat.Key" data-etat="@etat.Key">@etat.Value</button>
             }
 
+            <button type="button" class="btn btn-primary editReduction" @hidden>Remise</button>
             <button type="button" id="paymentBtn" class="btn btn-primary" @hidden>Payer</button>
         </div>
+        <a style="float: right;" asp-controller="Order" asp-action="DefaultFacture" asp-route-id="@Model.ID" id="showInvoice" class="btn btn-warning text-white"><i class="fa fa-flag-checkered" aria-hidden="true"></i> Facture </a>
     </div>
 
     <div class="">
@@ -215,6 +217,21 @@
 
                                 </tr>
                             }
+                            @if(Model.DiscountHT>0){
+                                <tr>
+                                    <td ><b>Remise</b></td>
+                                    <td class="trBase">1</td>
+                                    <td class="trBase" >@("-"+Model.DiscountHT) @ViewData["devise"]</td>
+                                    <td class="trBase" >0 @ViewData["devise"]</td>
+                                    <td class="trBase" >@("-"+Model.DiscountHT) @ViewData["devise"]</td>
+                                    <td class="trBase" >@(Model.DiscountTVA)%</td>
+                                    <td class="trBase" >@("-"+Model.DiscountTTC) @ViewData["devise"]</td>
+                                    <td @hidden>
+                                        <span class="toHideForAdd toHideForEdit"> <span  class="editReduction"><a href="#" data-toggle="tooltip" data-placement="top" title="Modifier"><i class="fa fa-pencil color-muted m-r-5"></i> </a> </span> <span class="supReduction" ><a data-toggle="tooltip" data-placement="top" title="Supprimer"><i class="fa fa-close color-danger"></i></a></span></span>
+                                    </td>
+                                </tr>
+                            
+                            }
                             <tr id="trAdd" class="toShowForAdd" hidden>
                                 <td id="designationAdd"></td>
 
@@ -251,6 +268,48 @@
 
 
     </div>
+    <div class="modal fade" id="modalAddReduction" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Appliquer une remise à la commande</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="addReductionForm">
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Montant HT </label>
+                            <input type="text" class="form-control input-default" id="discountHT" value="@Model.DiscountHT" placeholder="Montant HT" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">TVA </label>
+                            <select id="discountTVA" class="form-control">
+                                <option value="0">0%</option>
+                                <option value="5">5%</option>
+                                <option value="10">10%</option>
+                                <option value="18">18%</option>
+                                <option value="20">20%</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Montant TTC </label>
+                            <input type="text" class="form-control input-default" id="discountTTC" value="@Model.DiscountTTC" placeholder="Montant TTC" required>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" id="addReduction" class="btn btn-info">Appliquer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
     <div class="modal fade" id="modalPayment" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -296,9 +355,7 @@
         </div>
     </div>
    
-    <div id="y">
-
-    </div>
+    
 
 </div>
 
@@ -366,6 +423,7 @@
         }
     }
     );
+    
     $("#paymnetForm").submit(function (event) {
         event.preventDefault();
         if (document.getElementById('paymnetForm').checkValidity()) {
@@ -387,6 +445,63 @@
         $("#amountRToPay").val(valRestant());
         $("#modalPayment").modal();
     });
+    $(".editReduction").click(function () {
+        $("#discountTVA").val(@Model.DiscountTVA);
+        $("#modalAddReduction").modal();
+    });
+    
+    $(".supReduction").click(function(){
+        editOrderReduction (0,0,0);
+    });
+    $("#addReductionForm").submit(function (event) {
+        event.preventDefault();
+        if (document.getElementById('addReductionForm').checkValidity()) {
+            var amountTtc = $("#discountTTC").val().replace(".", ",");
+            var amountHT = $("#discountHT").val().replace(".", ",");
+            var otva = Number($("#discountTVA").val());
+            editOrderReduction (otva,amountHT, amountTtc);
+        }
+    });
+    function editOrderReduction (otva,amountHT, amountTtc){
+        $.post("/Order/UpdateDiscount", { OrderId:"@Model.ID", DiscountTVA : otva, DiscountHT: amountHT, DiscountTTC : amountTtc}, function (res) {
+                if (res.success) {
+                    location.reload();
+                } else {
+                    toastError("Erreur", res._acts.title)
+                }
+         });
+    }
+    $("#discountHT").change(function () {
+            var ht = $(this).val().replace(",", ".");
+            if (!isNaN(parseFloat(ht))) {
+                var tva = Number($("#discountTVA").val());
+                
+                ht = parseFloat(ht)
+                console.log(tva)
+                console.log(ht)
+                $("#discountTTC").val(round(ht + ((ht * tva) / 100), 2));
+            } else {
+                $("#discountHT").val(0);
+                $("#discountTTC").val(0);
+            }
+
+        });
+        $("#discountTTC").change(function () {
+            if (!isNaN(parseFloat($(this).val()))) {
+                var ttc = parseFloat($(this).val());
+                var tva = Number($("#discountTVA").val());
+                $("#discountHT").val(round((100 * ttc) / (100 + tva), 2));
+            } else {
+                $("#discountTTC").val(0);
+                $("#discountHT").val(0);
+            }
+        });
+        $("#discountTVA").change(function () {
+            var ht = parseFloat($("#discountHT").val());
+            var tva = Number($(this).val());
+            $("#discountTTC").val(round(ht + ((ht * tva) / 100), 2));
+        });
+    
 
     $(".editLine").click(function () {
         editLine($(this),true)

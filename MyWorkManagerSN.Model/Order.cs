@@ -14,10 +14,14 @@ namespace MyWorkManagerSN.Model
         public string CustomerId { get; set; }
         public virtual Customer Customer { get; set; }
         public string Status { get; set; }
-        public double Discount { get; set; }
+        public int DiscountTVA  { get; set; }
+        public double DiscountHT { get; set; }
+        public double DiscountTTC { get; set; }
         public double AmountPaid { get; set; }
+        public double AmountTotalHT { get; set; }
         public double AmountTotal { get; set; }
         public DateTime DateCreation { get; set; }
+        public DateTime? DateCreationInvoice { get; set; }
         public string? PaymentModeId { get; set; }
         public virtual PaymentMode? PaymentMode { get; set; }
         public bool IsOrderSubuscription { get; set; }

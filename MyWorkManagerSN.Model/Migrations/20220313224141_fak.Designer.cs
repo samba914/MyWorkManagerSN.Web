@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyWorkManagerSN.Model;
 
@@ -11,9 +12,10 @@ using MyWorkManagerSN.Model;
 namespace MyWorkManagerSN.Model.Migrations
 {
     [DbContext(typeof(MyEntitiesContext))]
-    partial class MyEntitiesContextModelSnapshot : ModelSnapshot
+    [Migration("20220313224141_fak")]
+    partial class fak
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -127,14 +129,8 @@ namespace MyWorkManagerSN.Model.Migrations
                     b.Property<DateTime?>("DateCreationInvoice")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("DiscountHT")
+                    b.Property<double>("Discount")
                         .HasColumnType("float");
-
-                    b.Property<double>("DiscountTTC")
-                        .HasColumnType("float");
-
-                    b.Property<int>("DiscountTVA")
-                        .HasColumnType("int");
 
                     b.Property<bool>("IsOrderSubuscription")
                         .HasColumnType("bit");

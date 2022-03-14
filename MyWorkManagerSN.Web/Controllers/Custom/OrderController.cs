@@ -38,6 +38,11 @@ namespace MyWorkManagerSN.Controllers.Custom
             ViewData["user"] = user;
             
             Order order = new DbManager<Order>().GetOrderWithLines(o => o.UserId == userId && o.ID == id);
+            if(order.DateCreationInvoice == null)
+            {
+                order.DateCreationInvoice = DateTime.Now;
+            }
+            new DbManager<Order>().Update(order);
             ViewData["Customer"] = new DbManager<Customer>().GetById(userId, order.CustomerId);
             return View(order);
         }
@@ -119,10 +124,11 @@ namespace MyWorkManagerSN.Controllers.Custom
                     
                     line.Quantity = Quantity;
                     line.Discount = double.Parse(Discount);
+                    double previousHT = line.AmountTotalHT;
                     line.AmountTotalHT = (line.UnitPrice - line.Discount) * Quantity;
                     double previousTTc = line.AmountTotalTTc;
                     line.AmountTotalTTc = Math.Round(line.AmountTotalHT + ((line.AmountTotalHT * line.TVA) / 100), 2);
-
+                    order.AmountTotalHT = order.AmountTotalHT - previousHT + line.AmountTotalHT;
                     order.AmountTotal = order.AmountTotal - previousTTc + line.AmountTotalTTc;
                     new OrderService().UpdateOrderLine(order,line);
                     product.Stock -= Quantity;
@@ -179,8 +185,11 @@ namespace MyWorkManagerSN.Controllers.Custom
                 o.CustomerId = customerId;
                 o.AmountPaid = 0;
                 o.AmountTotal = 0;
+                o.AmountTotalHT = 0;
                 o.DateCreation = dateTime;
-                o.Discount = 0;
+                o.DiscountHT = 0;
+                o.DiscountTTC = 0;
+                o.DiscountTTC = 0;
                 o.UserId = userId;
                 o.IsOrderSubuscription = isSubMode;
                 o.Lines = new List<OrderLine>();
@@ -251,6 +260,32 @@ namespace MyWorkManagerSN.Controllers.Custom
             }
         }
         [HttpPost]
+        public JsonResult UpdateDiscount(string OrderId, int DiscountTVA, string DiscountHT, string DiscountTTC)
+        {
+            try
+            {
+                string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                Order order = new DbManager<Order>().Get(p => p.UserId == userId && p.ID == OrderId);
+                if (order == null)
+                {
+                    return Json(new { success = false, _acts = new { title = "Une erreur s'est produite!" } });
+                }
+                double previousTTC = order.DiscountTTC;
+                double previousHT = order.DiscountHT;
+                order.DiscountTTC = double.Parse(DiscountTTC);
+                order.DiscountHT = double.Parse(DiscountHT);
+                order.DiscountTVA = DiscountTVA;
+                order.AmountTotal = order.AmountTotal + previousTTC - order.DiscountTTC;
+                order.AmountTotalHT = order.AmountTotalHT + previousHT - order.DiscountHT;
+                new DbManager<Order>().Update(order);
+                return Json(new { success = true, _acts = new { title = "Modification effectuée" } });
+            }
+            catch (Exception e)
+            {
+                return Json(new { success = false, _acts = new { title = e.Message } });
+            }
+        }
+        [HttpPost]
         public JsonResult AddOrderLine(string OrderId, string ProductId, int Quantity, string UnitDiscount, string PriceHt, string PriceTTC)
         {
             string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -273,7 +308,7 @@ namespace MyWorkManagerSN.Controllers.Custom
                     if (order.Lines == null)
                         order.Lines = new List<OrderLine>();
                     new DbManager<OrderLine>().AddOrderLine(order,oLine);
-                    
+                    order.AmountTotalHT += double.Parse(PriceHt);
                     order.AmountTotal += double.Parse(PriceTTC);
                     new DbManager<Order>().Update(order);
                     product.Stock -= Quantity;

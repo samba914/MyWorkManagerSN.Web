@@ -33,7 +33,7 @@ namespace MyWorkManagerSN.Service
                     {
                         if (existingLine.ID == line.ID)
                         {
-
+                            existingOrder.AmountTotalHT -= line.AmountTotalHT;
                             existingOrder.AmountTotal -= line.AmountTotalTTc;
                             amountTotal = existingOrder.AmountTotal;
                             context.Entry(existingOrder).CurrentValues.SetValues(existingOrder);

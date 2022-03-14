@@ -171,6 +171,9 @@ article, article address, table.meta, table.inventory {
         clip: rect(0 0 0 0);
         position: absolute;
     }
+.alignRight {
+    text-align: right;
+}
 
     article address {
         float: left;
@@ -302,7 +305,13 @@ aside h1 {
 }
 
 #destinataire_info {
-    float: right
+    float: right;
+    margin-top: 7px;
+    font-size: 14px;
+}
+#personal_info {
+    margin-top: 20px;
+    font-size: 14px;
 }
 
 @media print {
