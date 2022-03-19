@@ -13,14 +13,17 @@
     <div class="">
         <div class="row">
             <button type="button" id="addSubscriptionWithAmount" data-acionType="add" class="action btn mb-1 btn-primary" style=" margin-left: 2%;">Ajouter un abonnement</button>
+            <div class="input-group-prepend col-md-7">
 
+            </div>
+            <input id="searchInput" type="search" class="form-control col-md-2 " placeholder="Recherche" aria-label="Search Dashboard">
         </div>
 
         <div style="margin-top: 2%;" class="card">
             <div class="card-body">
 
                 <div class="table-responsive">
-                    <table id="myTable" class="table table-bordered table-striped verticle-middle">
+                    <table id="myTable" class="table table-bordered table-striped verticle-middle dataTableConfig">
                         <thead>
                             <tr>
                                 <th scope="col">Client</th>
@@ -111,11 +114,36 @@
             </div>
         </div>
     </div>
+    
     <Partial name="../Customer/PartialCreateCustomer"/>
 </div>
 <script type="text/javascript" src="~/js/createCustomer.js"></script>
 <script type="text/javascript">
+    
+
     $(document).ready(function () {
+        $('#searchInput').on('keyup', function () {
+            var input, filter, table, tr, td,td2,td3, i, txtValue;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                td2 = tr[i].getElementsByTagName("td")[1];
+                td3 = tr[i].getElementsByTagName("td")[2];
+                if (td || td2 ||td3) {
+                    txtValue = td.textContent || td.innerText;
+                    txtValue2 = td2.textContent || td2.innerText;
+                    txtValue3 = td3.textContent || td3.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1 || txtValue3.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        });
         $("#oAmount").change(function () {
              if (isNaN($("#oAmount").val())) {
                     $("#oAmount").val(0);

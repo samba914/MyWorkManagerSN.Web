@@ -1,21 +1,25 @@
-﻿
-@model List<MyWorkManagerSN.Model.Order>
+﻿@model List<MyWorkManagerSN.Model.Order>
 @{
     ViewData["Title"] = "Toutes les commandes";
     string userId = ViewData["userId"] as string;
-    MyWorkManagerSN.Model.User user =  ViewData["user"] as MyWorkManagerSN.Model.User;
+    MyWorkManagerSN.Model.User user = ViewData["user"] as MyWorkManagerSN.Model.User;
 }
 
 
 <style>
-    .modeNotSelected{
-        color:grey;
-        border-color:grey;
 
+    .content-body .container-fluid {
+        padding-top: 0;
     }
-    .modeNotSelected:hover{
-        color:white;
+
+    .modeNotSelected {
+        color: grey;
+        border-color: grey;
     }
+
+        .modeNotSelected:hover {
+            color: white;
+        }
 
 </style>
 
@@ -35,7 +39,6 @@
         <div class="row">
             <button type="button" id="addOrder" data-acionType="add" class="action btn mb-1 btn-primary" style=" margin-left: 2%;">Ajouter une commande</button>
             <div class="input-group-prepend col-md-7">
-
             </div>
             <input id="serachInput" type="search" class="form-control col-md-2 " placeholder="Recherche" aria-label="Search Dashboard">
 
@@ -48,7 +51,7 @@
                 <div class="default-tab">
                     <ul class="nav nav-tabs mb-3" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active status" data-toggle="tab" href="#all" data-etat="all">Toutes les commandes</a>
+                            <a class="nav-link active status" data-toggle="tab" href="#all" data-etat="">Toutes les commandes</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link status" data-toggle="tab" href="#all" data-etat="En cours">Commandes en cours</a>
@@ -66,15 +69,15 @@
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="all" role="tabpanel">
                             <div class="table-responsive">
-                                <table id="myTable" class="table table-bordered table-striped verticle-middle">
+                                <table id="myTable" class="table table-bordered table-striped verticle-middle dataTableConfig ">
                                     <thead>
                                         <tr>
                                             <th scope="col">N° Commande</th>
                                             <th scope="col">Client</th>
-                                            <th scope="col">Montant Total TTc</th>
+                                            <th scope="col">Montant Total TTC</th>
                                             <th scope="col">Restant à payer</th>
                                             <th scope="col">Statut</th>
-                                            <th scope="col">Date de création</th>
+                                            <th scope="col" date-type="date">Date de création</th>
 
 
                                         </tr>
@@ -82,22 +85,26 @@
                                     <tbody>
                                         @foreach (MyWorkManagerSN.Model.Order order in Model)
                                         {
-                                        <tr>
-                                            <td><a href="@Url.Action("Show","Order", new { id = order.ID })" style="text-decoration-line: underline; font-size: initial; font-weight: initial;">CM-@String.Format("{0:0000}", order.NumOrder)</a></td>
-                                            @{ MyWorkManagerSN.Model.Customer c = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Customer>().GetById(userId, order.CustomerId); }
-                                            <td>@c.Surname @c.Name</td>
+                                            <tr>
+                                                <td><a href="@Url.Action("Show","Order", new { id = order.ID })" style="text-decoration-line: underline; font-size: initial; font-weight: initial;">CM-@String.Format("{0:0000}", order.NumOrder)</a></td>
+                                                @{
+                                                    MyWorkManagerSN.Model.Customer c = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Customer>().GetById(userId, order.CustomerId);
+                                                }
+                                                <td>@c.Surname @c.Name</td>
 
-                                            <td>@order.AmountTotal @ViewData["devise"]</td>
-                                            @{ double restToPay = order.AmountTotal - order.AmountPaid;}
-                                            <td>@restToPay @ViewData["devise"]
-                                            
-
-                                            <td>@order.Status</td>
-
-                                            <td>@order.DateCreation.ToString("dd/MM/yyyy")</td>
+                                                <td data-type="amount">@order.AmountTotal @ViewData["devise"]</td>
+                                                @{
+                                                    double restToPay = order.AmountTotal - order.AmountPaid;
+                                                }
+                                                <td data-type="amount">@restToPay @ViewData["devise"]
 
 
-                                        </tr>
+                                                <td>@order.Status</td>
+
+                                                <td data-type="date">@order.DateCreation.ToString("dd/MM/yyyy")</td>
+
+
+                                            </tr>
 
                                         }
 
@@ -129,14 +136,14 @@
                     </button>
                 </div>
                 <form id="catForm">
-                <div class="modal-body">
+                    <div class="modal-body">
                         @if (user.AccountOptions != null && user.AccountOptions.ActiveSubWithAmount)
                         {
                             <div style="text-align-last: center">
                                 <button id="modeStandard" type="button" class="btn mb-1 btn-outline-primary orderMode" data-modeIsSub="false">Standard</button>
                                 <button id="modeIsSub" type="button" class="btn mb-1 btn-outline-primary orderMode modeNotSelected" data-modeIsSub="true">Abonnement</button>
                             </div>
-                            <br/>
+                            <br />
                         }
                         <p>Rechercher un client par : </p>
                         <input type="radio" name="searchType" id="searchType1" value="Prenom_Nom" checked>
@@ -158,13 +165,13 @@
                                 <input type="text" class="form-control" value="@DateTime.Now.ToString("dd/MM/yyyy")" id="datepickerCustom" placeholder="dd/mm/yyyy" required> <span class="input-group-append"><span class="input-group-text"><i class="mdi mdi-calendar-check"></i></span></span>
                             </div>
                         </div>
-                   
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                    <button type="submit" id="editModelSubmit" class="btn btn-info">Ajouter</button>
-                </div>
-                 </form>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" id="editModelSubmit" class="btn btn-info">Ajouter</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -172,77 +179,34 @@
 </div>
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
 
 <script type="text/javascript" src="~/js/createCustomer.js"></script>
+<script type="text/javascript" src="~/js/sortTable.js"></script>
 
+@*<script type = "text/JavaScript" src = "https://MomentJS.com/downloads/moment.js"></script>*@
 <script type="text/javascript">
+
+    
     $(document).ready(function () {
+        $('.dataTables_length').addClass('bs-select');
         var IsSubscription = false;
         var seachType = "Prenom_Nom";
         $('#serachInput').on('keyup', function () {
-            var input, filter, table, tr, td, td2, i, txtValue;
+            var input, filter;
             var status = $($(".nav-link.active.status")[0]).attr("data-etat");
             input = document.getElementById("serachInput");
             filter = input.value.toUpperCase();
-            table = document.getElementById("myTable");
-            tr = table.getElementsByTagName("tr");
-            for (i = 0; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[0];
-                td2 = tr[i].getElementsByTagName("td")[1];
-                td3 = tr[i].getElementsByTagName("td")[2];
-                td4 = tr[i].getElementsByTagName("td")[3];
-                td5 = tr[i].getElementsByTagName("td")[4];
-                tdStatus = tr[i].getElementsByTagName("td")[4];
-                td6 = tr[i].getElementsByTagName("td")[5];
-                if (td || td2 || td3 || td4 || td5 || td6) {
-                    txtValue = td.textContent || td.innerText;
-                    txtValue2 = td2.textContent || td2.innerText;
-                    txtValue3 = td3.textContent || td3.innerText;
-                    txtValue4 = td4.textContent || td4.innerText;
-                    txtValue5 = td5.textContent || td5.innerText;
-                    txtValue6 = td6.textContent || td6.innerText;
-                    txtValueStatut = tdStatus.textContent || tdStatus.innerText;
-                    console.log(txtValueStatut)
-                    if (status == "all" && (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1 || txtValue3.toUpperCase().indexOf(filter) > -1 || txtValue4.toUpperCase().indexOf(filter) > -1 || txtValue5.toUpperCase().indexOf(filter) > -1 || txtValue6.toUpperCase().indexOf(filter) > -1)) {
-                        tr[i].style.display = "";
-                    } else if (txtValueStatut == status && (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1 || txtValue3.toUpperCase().indexOf(filter) > -1 || txtValue4.toUpperCase().indexOf(filter) > -1 || txtValue6.toUpperCase().indexOf(filter) > -1)) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
-                }
-            }
+            datatable.search(filter).draw();
         });
-
 
         $('.status').on('click', function () {
             var status = $(this).attr("data-etat");
-            var input, filter, table, tr, td, i, txtValue;
-            input = status;
-            filter = input.toUpperCase();
-            table = document.getElementById("myTable");
-            tr = table.getElementsByTagName("tr");
-            for (i = 0; i < tr.length; i++) {
-                if (status == "all") {
-                    tr[i].style.display = "";
-                }
-                else {
-                    td = tr[i].getElementsByTagName("td")[4];
-                    if (td) {
-                        txtValue = td.textContent || td.innerText;
-                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                            tr[i].style.display = "";
-                        } else {
-                            tr[i].style.display = "none";
-                        }
-                    }
-                }
-
-            }
+            datatable.column(4).search(status).draw();
         });
+
         $(".orderMode").click(function () {
             $("#inputAutoComplete").val("");
             $("#inputAutoComplete").attr("data-id", "");
@@ -260,7 +224,7 @@
                 $("#inputAutoComplete").attr("data-method", "");
             }
             autocomplete(document.getElementById("inputAutoComplete"), seachType);
-       
+
 
         });
 
@@ -283,7 +247,7 @@
             }
         });
 
-        
+
         $("#addOrder").click(function () {
             autocomplete(document.getElementById("inputAutoComplete"), seachType);
 

@@ -23,7 +23,7 @@
             <div class="input-group-prepend col-md-7">
 
             </div>
-            <input id="myInput" type="search" class="form-control col-md-2 " placeholder="Recherche" aria-label="Search Dashboard">
+            <input id="myInput" type="search" class="form-control col-md-2 " placeholder="Recherche" aria-label="Search Dashboard">  <i data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" class="fa fa-download" onclick="tableToCSV()" aria-hidden="true"></i>  
 
         </div>
 
@@ -31,7 +31,7 @@
             <div class="card-body">
 
                 <div class="table-responsive">
-                    <table id="myTable" class="table table-bordered table-striped verticle-middle">
+                    <table id="myTable" class="table table-bordered table-striped verticle-middle dataTableConfig">
                         <thead>
                             <tr>
                                 <th scope="col">Nom</th>
@@ -55,14 +55,14 @@
                                     <td>@cl.Email</td>
                                     <td>@cl.Mobile</td>
                                     @if(cl.Address!=null){
-                                        <td>@cl.Address.Rue, @cl.Address.Ville, @cl.Address.Complement, @cl.Address.CodePostal, @cl.Address.PaysCode <a  data-complement="@cl.Address.Complement" data-rue="@cl.Address.Rue" data-ville="@cl.Address.Ville" data-codepostal="@cl.Address.CodePostal" data-pays="@cl.Address.PaysCode" data-oId="@cl.ID" data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" type="button" href="#" class="addAdrsbtn btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a></td>
+                                        <td data-type="adrs">@cl.Address.Rue, @cl.Address.Ville, @cl.Address.Complement, @cl.Address.CodePostal, @cl.Address.PaysCode <a data-cut=""  data-complement="@cl.Address.Complement" data-rue="@cl.Address.Rue" data-ville="@cl.Address.Ville" data-codepostal="@cl.Address.CodePostal" data-pays="@cl.Address.PaysCode" data-oId="@cl.ID" data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" type="button" href="#" class="addAdrsbtn btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a></td>
                                     }else{
-                                         <td> <a  data-rue="" data-ville="" data-codepostal="" data-pays="" data-oId="@cl.ID" data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" type="button" href="#" class="addAdrsbtn btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a></td>
+                                         <td data-type="adrsNull"> <a  data-rue="" data-ville="" data-codepostal="" data-pays="" data-oId="@cl.ID" data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" type="button" href="#" class="addAdrsbtn btn-floating btn-blue-grey col-md-2" style="align-self: center;"><i class="fa fa-plus-circle"></i></a></td>
                                     }
                                     @{List<MyWorkManagerSN.Model.Order> listCustomerOrder = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Order>().GetAll(o => o.UserId == userId && o.CustomerId == cl.ID && (o.Status == "Payée" || o.Status == "Livrée")).ToList();
                                         double sumAmountOrder = listCustomerOrder.Select(o => o.AmountTotal).Sum();
                                      }
-                                    <td>@sumAmountOrder @ViewData["devise"]</td>
+                                    <td data-type="amount">@sumAmountOrder @ViewData["devise"]</td>
                                     <td>
                                         <span> <span data-name="@cl.Name" data-surname="@cl.Surname" data-oId="@cl.ID" data-email="@cl.Email" data-mobile="@cl.Mobile" data-acionType="edit" class="action"><a href="#" data-toggle="tooltip" data-placement="top" title="Modifier"><i class="fa fa-pencil color-muted m-r-5"></i> </a> </span> <span class="supCat" data-oId="@cl.ID"><a href="#" data-toggle="tooltip" data-placement="top" title="Supprimer"><i class="fa fa-close color-danger"></i></a></span></span>
                                     </td>
@@ -126,7 +126,8 @@
         </div>
     </div>
 </div>
-
+<script type="text/javascript" src="~/js/sortTable.js"></script>
+<script type="text/javascript" src="~/js/convertTableToCSV.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
      
@@ -157,34 +158,10 @@
         
         var currentId = "";
         $('#myInput').on('keyup', function () {
-            var input, filter, table, tr, td, td2, i, txtValue;
+            var input, filter;
             input = document.getElementById("myInput");
             filter = input.value.toUpperCase();
-            table = document.getElementById("myTable");
-            tr = table.getElementsByTagName("tr");
-            for (i = 0; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[0];
-                td2 = tr[i].getElementsByTagName("td")[1];
-                td3 = tr[i].getElementsByTagName("td")[2];
-                td4 = tr[i].getElementsByTagName("td")[3];
-                td5 = tr[i].getElementsByTagName("td")[4];
-                td6 = tr[i].getElementsByTagName("td")[5];
-                td7 = tr[i].getElementsByTagName("td")[6];
-                if (td || td2 || td3 || td4 || td5 || td6 || td7) {
-                    txtValue = td.textContent || td.innerText;
-                    txtValue2 = td2.textContent || td2.innerText;
-                    txtValue3 = td3.textContent || td3.innerText;
-                    txtValue4 = td4.textContent || td4.innerText;
-                    txtValue5 = td5.textContent || td5.innerText;
-                    txtValue6 = td6.textContent || td6.innerText;
-                    txtValue7 = td7.textContent || td7.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1 || txtValue3.toUpperCase().indexOf(filter) > -1 || txtValue4.toUpperCase().indexOf(filter) > -1 || txtValue5.toUpperCase().indexOf(filter) > -1 || txtValue6.toUpperCase().indexOf(filter) > -1 || txtValue7.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
-                }
-            }
+            datatable.search(filter).draw();
         });
         $(".action").click(function () {
        

@@ -1,3 +1,15 @@
 ﻿thead {
     background-color: lightgrey;
 }
+select[name*="myTable_length"] {
+    height: fit-content;
+    border: 0.1rem solid;
+    border-radius: 6px;
+}
+
+.dataTables_length {
+    margin-top: 0;
+}
+#myTable_filter{
+    display:none;
+}
