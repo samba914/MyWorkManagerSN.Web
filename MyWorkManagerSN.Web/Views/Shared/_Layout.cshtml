@@ -111,7 +111,12 @@
                                 <i class="fa fa-cart-plus"></i><span class="nav-text">Commandes</span>
                             </a>
                         </li>
-                        
+                        <li class="dashbard" data-page="Order">
+                            <a class="has-arrow" href="@Url.Action("All","Quote")" aria-expanded="false">
+                                <i class="fa fa-usd"></i><span class="nav-text">Devis</span>
+                            </a>
+                        </li>
+
                         <li class="dashbard" data-page="Customer">
                             <a class="has-arrow" href="@Url.Action("All","Customer")" aria-expanded="false">
                                 <i class="fa fa-users"></i><span class="nav-text">Clients</span>
@@ -168,23 +173,7 @@
     <script src="~/TemplateQuixLab/js/gleek.js" ></script>
     <script src="~/TemplateQuixLab/js/styleSwitcher.js" ></script>
 
-    <!-- Chartjs -->
-    <script src="~/TemplateQuixLab/plugins/chart.js/Chart.bundle.min.js" ></script>
-    <!-- Circle progress -->
-    <script src="~/TemplateQuixLab/plugins/circle-progress/circle-progress.min.js" ></script>
-    <!-- Datamap -->
-    <script src="~/TemplateQuixLab/plugins/d3v3/index.js" ></script>
-    <script src="~/TemplateQuixLab/plugins/topojson/topojson.min.js" ></script>
-    <script src="~/TemplateQuixLab/plugins/datamaps/datamaps.world.min.js" ></script>
-    <!-- Morrisjs -->
-    <script src="~/TemplateQuixLab/plugins/raphael/raphael.min.js" ></script>
-    <script src="~/TemplateQuixLab/plugins/morris/morris.min.js" ></script>
-    <!-- Pignose Calender -->
-    <script src="~/TemplateQuixLab/plugins/moment/moment.min.js" ></script>
-    <script src="~/TemplateQuixLab/plugins/pg-calendar/js/pignose.calendar.min.js" ></script>
-    <!-- ChartistJS -->
-    <script src="~/TemplateQuixLab/plugins/chartist/js/chartist.min.js" ></script>
-    <script src="~/TemplateQuixLab/plugins/chartist-plugin-tooltips/js/chartist-plugin-tooltip.min.js" ></script>
+    
     <!-- Toastr -->
     <script src="~/TemplateQuixLab/plugins/toastr/js/toastr.min.js" ></script>
     <script src="~/TemplateQuixLab/plugins/toastr/js/toastr.init.js" ></script>

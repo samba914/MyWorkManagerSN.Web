@@ -124,6 +124,40 @@ namespace MyWorkManager.Controllers.Custom
             }
         }
         [HttpGet]
+        public JsonResult GetProductFilteredByQuoteLine(string QuoteId)
+        {
+
+            try
+            {
+                string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                Quote quote = new QuoteService().GetQuoteWithLines(q => q.UserId == userId && q.ID == QuoteId);
+                List<string> lineListID = new List<string>();
+                if (quote.Lines != null)
+                {
+                    foreach (QuoteLine l in quote.Lines)
+                    {
+                        lineListID.Add(l.ProductId);
+                    }
+                }
+                List<Product> list = new DbManager<Product>().GetAll(pt => pt.UserId == userId);
+                foreach (Product p in list.ToList())
+                {
+                    Category cat = new DbManager<Category>().GetById(userId, p.CategoryId);
+                    p.Label = cat.Label + " - " + p.Label;
+                    if (lineListID.Contains(p.ID))
+                    {
+                        list.Remove(p);
+                    }
+                }
+                return Json(new { success = true, _acts = new { list = list } });
+
+            }
+            catch (Exception e)
+            {
+                return Json(new { success = false, _acts = new { title = e.Message } });
+            }
+        }
+        [HttpGet]
         public JsonResult GetProsuctFilteredByLine(string OrderId)
         {
 

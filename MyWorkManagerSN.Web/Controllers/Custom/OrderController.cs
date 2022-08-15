@@ -22,6 +22,12 @@ namespace MyWorkManagerSN.Controllers.Custom
         {
             string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             Model.User user = new Service.DbManager<Model.User>().Get(u => u.UserId == userId);
+            Dictionary<string,string> keyValuePairs = new Dictionary<string,string>();
+            keyValuePairs.Add("Payée", "text-success");
+            keyValuePairs.Add("Livrée", "text-success");
+            keyValuePairs.Add("En cours", "text-warning");
+            keyValuePairs.Add("Annulée", "text-danger");
+            ViewData["status"] = keyValuePairs;
             ViewData["devise"] = user.Devise;
             ViewData["userId"] = userId;
             ViewData["user"] = user;
@@ -179,31 +185,7 @@ namespace MyWorkManagerSN.Controllers.Custom
             try
             {
                 string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                DateTime dateTime = DateTime.ParseExact(date, "dd/MM/yyyy", CultureInfo.InvariantCulture);
-                Order o = new Order();
-                o.Status = "En cours";
-                o.CustomerId = customerId;
-                o.AmountPaid = 0;
-                o.AmountTotal = 0;
-                o.AmountTotalHT = 0;
-                o.DateCreation = dateTime;
-                o.DiscountHT = 0;
-                o.DiscountTTC = 0;
-                o.DiscountTTC = 0;
-                o.UserId = userId;
-                o.IsOrderSubuscription = isSubMode;
-                o.Lines = new List<OrderLine>();
-                List<Order> listOrder = new DbManager<Order>().GetAll(obj => obj.UserId == userId); 
-                if(listOrder.Count > 0)
-                {
-                    o.NumOrder = listOrder.OrderBy(x => x.NumOrder).ToList().Last().NumOrder + 1;
-                }
-                else
-                {
-                    o.NumOrder = 1;
-                }
-                
-                string orderId = new DbManager<Order>().Add(o);
+                string orderId = new OrderService().CreateOrder(userId, date, customerId, isSubMode).ID;
                 return Json(new { success = true, _acts = new { title = "Commande ajoutée" , orderId= orderId} });
             }catch(Exception e)
             {
@@ -262,66 +244,17 @@ namespace MyWorkManagerSN.Controllers.Custom
         [HttpPost]
         public JsonResult UpdateDiscount(string OrderId, int DiscountTVA, string DiscountHT, string DiscountTTC)
         {
-            try
-            {
-                string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-                Order order = new DbManager<Order>().Get(p => p.UserId == userId && p.ID == OrderId);
-                if (order == null)
-                {
-                    return Json(new { success = false, _acts = new { title = "Une erreur s'est produite!" } });
-                }
-                double previousTTC = order.DiscountTTC;
-                double previousHT = order.DiscountHT;
-                order.DiscountTTC = double.Parse(DiscountTTC);
-                order.DiscountHT = double.Parse(DiscountHT);
-                order.DiscountTVA = DiscountTVA;
-                order.AmountTotal = order.AmountTotal + previousTTC - order.DiscountTTC;
-                order.AmountTotalHT = order.AmountTotalHT + previousHT - order.DiscountHT;
-                new DbManager<Order>().Update(order);
-                return Json(new { success = true, _acts = new { title = "Modification effectuée" } });
-            }
-            catch (Exception e)
-            {
-                return Json(new { success = false, _acts = new { title = e.Message } });
-            }
+            string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Json(new OrderService().UpdateDiscount(userId, OrderId, DiscountTVA, DiscountHT, DiscountTTC));
+                
         }
         [HttpPost]
         public JsonResult AddOrderLine(string OrderId, string ProductId, int Quantity, string UnitDiscount, string PriceHt, string PriceTTC)
         {
-            string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             
-            try
-            {
-                Product product = new DbManager<Product>().Get(p => p.UserId == userId && p.ID == ProductId);
-                Order order = new DbManager<Order>().Get(p => p.UserId == userId && p.ID == OrderId);
-                if (product == null && order==null)
-                {
-                    return Json(new { success = false, _acts = new { title = "Une erreur s'est produite!" } });
-                }
-                else
-                {
-                    if(product.Stock < Quantity)
-                    {
-                        return Json(new { success = false, _acts = new { title = "La quantité demandée est supérieure au stock disponible!" } });
-                    }
-                    OrderLine oLine = new OrderLine {ID= System.Guid.NewGuid().ToString(), UserId =userId , ProductId=ProductId,TVA= product.TVA, UnitPrice= product.PriceHT, AmountTotalTTc=double.Parse(PriceTTC), Quantity=Quantity, AmountTotalHT=double.Parse(PriceHt),Discount=double.Parse(UnitDiscount) };
-                    if (order.Lines == null)
-                        order.Lines = new List<OrderLine>();
-                    new DbManager<OrderLine>().AddOrderLine(order,oLine);
-                    order.AmountTotalHT += double.Parse(PriceHt);
-                    order.AmountTotal += double.Parse(PriceTTC);
-                    new DbManager<Order>().Update(order);
-                    product.Stock -= Quantity;
-                    new DbManager<Product>().Update(product);
-
-
-                    return Json(new { success = true, _acts = new { title = "Produit ajoutée", oID = oLine.ID, newAmountTotal = order.AmountTotal } });
-                }
-            }
-            catch (Exception e)
-            {
-                return Json(new { success = false, _acts = new { title = e.Message } });
-            }
+                string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                return Json(new OrderService().AddOrderLine(userId, OrderId, ProductId, Quantity, UnitDiscount, PriceHt, PriceTTC));
+           
         }
 
         /*public JsonResult Add(string code, string label)

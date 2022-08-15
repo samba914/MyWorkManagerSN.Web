@@ -1,8 +1,314 @@
-﻿@{
+﻿@using Newtonsoft.Json
+@using MyWorkManagerSN.Model
+@model List<Order>
+@{
     ViewData["Title"] = "Home Page";
-}
+    List<CustomOrderLine> lineList = ViewData["listLine"] as List<CustomOrderLine>;
+    int totalQuantity =  (int)(ViewData["totalQuantity"]);
+    
+    
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+}
+<style>
+    .scroll{
+        max-height : 450px ;
+        overflow-y: auto;
+    }
+    thead {
+    background-color: inherit;
+    }
+    .activePeriod{
+        color: black;
+    }
+</style>
+<div class="text-center mr-2 ml-2">
+    <h1 class="display-4">Bienvenue</h1>
+    <div class="row">
+        
+                <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+            <i class="fa fa-calendar"></i>&nbsp;
+            <span></span> <i class="fa fa-caret-down"></i>
+        </div>
+    
+    </div>
+    <div class="row">
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-body pb-0 d-flex justify-content-between">
+                                        <div>
+                                            <h4 class="mb-1">Chiffre d'affaires de la période</h4>
+                                            <h5 class="mb-1">@ViewData["amountTotalTTc"] @ViewData["devise"]</h5>
+                                            
+                                        </div>
+                                        <div>
+                                            <ul>
+                                                <li class="d-inline-block mr-3"><a class="activePeriod CAPeriodDisplay" data-period="day" href="#">Jour</a></li>
+                                                <li class="d-inline-block mr-3"><a class=" CAPeriodDisplay" data-period="month" href="#">Mois</a></li>
+                                                <li class="d-inline-block"><a class=" CAPeriodDisplay" data-period="year" href="#">Année</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                    
+                    <div id="morris-line-chart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-widget scroll">
+                <div class="card-body">
+                    <h5 class="text-muted">Nombre de produits vendus </h5>
+                    <h2 class="mt-4">@totalQuantity</h2>
+                    
+                    @if (lineList != null && lineList.Count()>0)
+                    {
+
+                        CustomOrderLine firstLine = lineList.First();
+                        lineList.Remove(firstLine);
+                        <div class="mt-3">
+                             <span>Meilleure vente</span>
+                            <h5>@firstLine.Quantity</h5>
+                            <h6>@firstLine.Designation <span class="pull-right">@((firstLine.Quantity*100/totalQuantity)+"%")</span></h6>
+                            <div class="progress mb-3" style="height: 7px">
+                                <div class="progress-bar bg-success" style="width: @((firstLine.Quantity*100/totalQuantity)+"%");" role="progressbar">
+                                   
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @foreach(CustomOrderLine l in lineList)
+                    {
+                        string progressBarColor = "bg-success";
+                        if(l.Quantity*100/totalQuantity<30 && l.Quantity * 100 / totalQuantity > 14)
+                        {
+                            progressBarColor = "bg-warning";
+                        }else if (l.Quantity * 100 / totalQuantity < 15)
+                        {
+                            progressBarColor = "bg-danger";
+                        }
+                        <div class="mt-3">
+                        <h6 class="m-t-10 text-muted">@l.Quantity @(l.Designation) <span class="pull-right">@((l.Quantity*100/totalQuantity)+"%")</span></h6>
+                        <div class="progress mb-3" style="height: 7px">
+                            <div class="progress-bar @progressBarColor" style="width: @(((l.Quantity*100)/totalQuantity)+"%");" role="progressbar">
+                            </div>
+                        </div>
+                    </div>
+                    }
+                    
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Chartjs -->
+<script src="~/TemplateQuixLab/plugins/chart.js/Chart.bundle.min.js"></script>
+<!-- Circle progress -->
+<script src="~/TemplateQuixLab/plugins/circle-progress/circle-progress.min.js"></script>
+<!-- Datamap -->
+<script src="~/TemplateQuixLab/plugins/d3v3/index.js"></script>
+<script src="~/TemplateQuixLab/plugins/topojson/topojson.min.js"></script>
+<script src="~/TemplateQuixLab/plugins/datamaps/datamaps.world.min.js"></script>
+<!-- Morrisjs -->
+<script src="~/TemplateQuixLab/plugins/raphael/raphael.min.js"></script>
+<script src="~/TemplateQuixLab/plugins/morris/morris.min.js"></script>
+<!-- Pignose Calender -->
+<script src="~/TemplateQuixLab/plugins/moment/moment.min.js"></script>
+<script src="~/TemplateQuixLab/plugins/pg-calendar/js/pignose.calendar.min.js"></script>
+<!-- ChartistJS -->
+<script src="~/TemplateQuixLab/plugins/chartist/js/chartist.min.js"></script>
+<script src="~/TemplateQuixLab/plugins/chartist-plugin-tooltips/js/chartist-plugin-tooltip.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+<script>
+    $(function() {
+    const monthNames= [
+            "Janvier",
+            "Fevrier",
+            "Mars",
+            "Avril",
+            "Mai",
+            "Juin",
+            "Juillet",
+            "Août",
+            "Septembre",
+            "Octobre",
+            "Novembre",
+            "Décembre"
+        ];
+    var from = '@ViewData["fromDate"]';
+    var to = '@ViewData["toDate"]';
+    console.log(to);
+    console.log(from)
+    var start = moment(from,"DD/MM/YYYY");
+    var end = moment(to,"DD/MM/YYYY");
+
+    
+
+    function cb(start, end) {
+        $('#reportrange span').html(start.format('D ')+ monthNames[Number(start.format("M"))-1] +start.format(', YYYY') + ' - ' + end.format('D ')+ monthNames[Number(end.format("M"))-1] +end.format(', YYYY'));
+        
+           window.location="/Home/Index?fromString="+start.format("YYYY-MM-DD")+"&toString="+end.format("YYYY-MM-DD");
+    }
+
+    $('#reportrange').daterangepicker({
+        buttonClasses: ['btn', 'btn-sm'],
+        startDate: start,
+        endDate: end,
+        opens: 'center',
+        ranges: {
+           '3 derniers jours': [moment().subtract(3, 'days'),  moment()],
+           'Cette semaine': [moment().startOf('week'), moment().endOf('week')],
+           'Ce mois': [moment().startOf('month'), moment().endOf('month')],
+           '3 derniers mois': [moment().subtract(3, 'month'), moment()],
+           'Cette année': [moment().startOf('year'), moment().endOf('year')]
+        },
+        locale: {
+        format: "DD/MM/YYYY",
+        separator: " - ",
+        applyLabel: "Appliquer",
+        cancelLabel: "Annuler",
+        fromLabel: "Du",
+        toLabel: "Au",
+        customRangeLabel: "Période personnalisée",
+        daysOfWeek: [
+            "L",
+            "Ma",
+            "Me",
+            "J",
+            "V",
+            "S",
+            "D"
+        ],
+        monthNames: [
+            "Janvier",
+            "Fevrier",
+            "Mars",
+            "Avril",
+            "Main",
+            "Juin",
+            "Juillet",
+            "Août",
+            "Septembre",
+            "Octobre",
+            "Novembre",
+            "Décembre"
+        ],
+        firstDay: 1
+    }
+    }, cb);
+     $('#reportrange span').html(start.format('D ')+ monthNames[Number(start.format("M"))-1] +start.format(', YYYY') + ' - ' + end.format('D ')+ monthNames[Number(end.format("M"))-1] +end.format(', YYYY'));
+
+
+});
+    const months = ["JAN", "FEB", "MAR","APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    var orders= @Html.Raw(JsonConvert.SerializeObject(Model));
+    console.log(new Date(orders[0].DateCreation).getTime());
+    var chart = new Morris.Line({
+        element: 'morris-line-chart',
+        resize: true,
+        data: [],
+        xkey: 'DateCreation',
+        ykeys: ['AmountPaid'],
+        xLabels: "day",
+        ymin: 0,
+        labels: ['Montant'],
+        gridLineColor: 'transparent',
+        lineColors: ['#4d7cff'],
+        lineWidth: 1,
+        parseTime:true,
+        hideHover: 'auto',
+        yLabelFormat: function (y) { return y.toString() + ' @ViewData["devise"]'; },
+        xLabelFormat: function (x) { return moment(x).format("DD-MM-YY"); },
+        dateFormat : function (x) { return moment(x).format("DD-MM-YY"); }
+    });
+
+    getDataFormatByPeriod("day");
+    
+
+    $(".CAPeriodDisplay").click(function(){
+        var period = $(this).attr("data-period");
+        $(".CAPeriodDisplay").removeClass("activePeriod")
+        $(this).addClass("activePeriod")
+        chart.options.xLabels = period;
+        getDataFormatByPeriod(period);
+        chart.redraw();
+        $(window).trigger("resize");
+    });
+
+    function getDataFormatByPeriod(periodd){
+        orders=@Html.Raw(JsonConvert.SerializeObject(Model));
+        var ordersForCA = [];
+        var localOrders=orders;
+        if(periodd=="day"){
+            localOrders.forEach(value => value.DateCreation= new Date(value.DateCreation).getTime()); 
+            chart.options.xLabelFormat= function (x) { return moment(x).format("DD-MM-YY"); },
+            chart.options.dateFormat =function (x) { return moment(x).format("DD-MM-YY"); }
+        }else if(periodd=="month"){
+            localOrders.forEach(function(value){
+                var referentialDate= new Date(value.DateCreation);
+                var date = new Date(referentialDate.getYear(),referentialDate.getMonth(),1);
+                value.DateCreation= date.getTime(); 
+            }); 
+            chart.options.xLabelFormat= function (x) {
+                const monthNames= [
+                "Janvier",
+                "Fevrier",
+                "Mars",
+                "Avril",
+                "Mai",
+                "Juin",
+                "Juillet",
+                "Août",
+                "Septembre",
+                "Octobre",
+                "Novembre",
+                "Décembre"
+            ];
+                return monthNames[Number(moment(x).format("M"))-1]  },
+            chart.options.dateFormat =function (x) { 
+                 const monthNames= [
+                "Janvier",
+                "Fevrier",
+                "Mars",
+                "Avril",
+                "Mai",
+                "Juin",
+                "Juillet",
+                "Août",
+                "Septembre",
+                "Octobre",
+                "Novembre",
+                "Décembre"
+            ];
+                return monthNames[Number(moment(x).format("M"))-1]}
+        }else{
+            localOrders.forEach(function(value){
+                var referentialDate= new Date(value.DateCreation);
+                var date = new Date(referentialDate.getYear(),01,01);
+                value.DateCreation= date.getTime(); 
+                chart.options.xLabelFormat= function (x) { return moment(x).format("YYYY") },
+                chart.options.dateFormat =function (x) { return moment(x).format("YYYY"); }
+            });
+        }
+        localOrders.reduce(function(res, value) {
+              if (!res[value.DateCreation]) {
+                res[value.DateCreation] = { DateCreation: value.DateCreation, AmountPaid: 0 };
+                ordersForCA.push(res[value.DateCreation])
+              }
+              res[value.DateCreation].AmountPaid += value.AmountPaid;
+              return res;
+         }, {});
+
+         chart.setData(ordersForCA)
+
+    }
+
+  
+
+</script>

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyWorkManagerSN.Model;
 
@@ -11,9 +12,10 @@ using MyWorkManagerSN.Model;
 namespace MyWorkManagerSN.Model.Migrations
 {
     [DbContext(typeof(MyEntitiesContext))]
-    partial class MyEntitiesContextModelSnapshot : ModelSnapshot
+    [Migration("20220323151932_quott")]
+    partial class quott
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,19 +43,6 @@ namespace MyWorkManagerSN.Model.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Category");
-                });
-
-            modelBuilder.Entity("MyWorkManagerSN.Model.Contract", b =>
-                {
-                    b.Property<string>("ID")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("Contracts");
                 });
 
             modelBuilder.Entity("MyWorkManagerSN.Model.Customer", b =>
@@ -310,6 +299,7 @@ namespace MyWorkManagerSN.Model.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Order_Id")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
@@ -398,24 +388,12 @@ namespace MyWorkManagerSN.Model.Migrations
                     b.Property<string>("CompanyName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ContractId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DateOfSubscription")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Devise")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("HaveActiveContract")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsTrial")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Mobile")
                         .HasColumnType("nvarchar(max)");

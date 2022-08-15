@@ -21,6 +21,10 @@ namespace MyWorkManagerSN.Model
         public Address? Address { get; set; }
         public string? CompanyName { get; set; }
         public bool ShowImageOnInvoice { get; set; }
+        public bool IsTrial { get; set; }
+        public DateTime DateOfSubscription { get; set; }
+        public bool HaveActiveContract { get; set; }
+        public string? ContractId { get; set; }
         public AccountOptions AccountOptions { get; set; }
     }
 }

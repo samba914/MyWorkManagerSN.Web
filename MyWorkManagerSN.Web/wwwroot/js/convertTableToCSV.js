@@ -12,14 +12,21 @@
         // Get each column data
         var cols = rows[i].querySelectorAll('td,th');
 
+
         // Stores each csv row data
         var csvrow = [];
-        for (var j = 0; j < cols.length - 1; j++)
-        {
 
+        console.log(cols[0].firstChild.checked)
+        if (i!=0 && !cols[0].firstChild.checked) {
+            continue;
+        }
+        for (var j = 1; j < cols.length - 1; j++)
+        {
+            
             // Get the text data of each cell
             // of a row and push it to csvrow
             var type = cols[j].getAttribute("data-type");
+            
             if (type == "adrs") {
                 csvrow.push(cols[j].innerHTML.split("<a data-cut")[0]);
             } else if (type=="adrsNull") {

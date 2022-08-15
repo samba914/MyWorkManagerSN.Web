@@ -3,7 +3,11 @@
     ViewData["Title"] = "Tous les clients";
     string userId = ViewData["userId"] as string;
 }
-
+<style>
+input[type="checkbox"]:after {
+        border-color: grey;
+}
+</style>
 
 <div class="content-body" style="margin:auto; padding:0 5% 0 5%">
 
@@ -23,23 +27,29 @@
             <div class="input-group-prepend col-md-7">
 
             </div>
-            <input id="myInput" type="search" class="form-control col-md-2 " placeholder="Recherche" aria-label="Search Dashboard">  <i data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" class="fa fa-download" onclick="tableToCSV()" aria-hidden="true"></i>  
+            <input id="myInput" type="search" class="form-control col-md-2 mr-3" placeholder="Recherche" aria-label="Search Dashboard">  <i id="allowConvertTocsv" style="place-self: center" data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" class="fa fa-download fa-lg"  aria-hidden="true"></i>  
 
         </div>
 
+        
+
         <div style="margin-top: 2%;" class="card">
             <div class="card-body">
-
+                <div class="showForCsv" style="padding-left: 30px;" hidden>
+            <button id="cancelCsv" type="button" class="btn mb-1 btn-outline-primary">Annuler</button>
+            <button id="applyConvertToCsv" type="button" class="btn mb-1 btn-outline-primary">Appliquer <i data-toggle="tooltip" data-placement="top" title="Modifier l'adresse" data-content="" class="fa fa-download" aria-hidden="true"></i>  </button>
+        </div>
                 <div class="table-responsive">
                     <table id="myTable" class="table table-bordered table-striped verticle-middle dataTableConfig">
                         <thead>
                             <tr>
+                                <th class="showForCsv mb-1 no-sort" scope="col" hidden>Tout <div><input id="checkAll" type="checkbox" /></div> </th>
                                 <th scope="col">Nom</th>
-                                <th scope="col">Prénom</th>
+                                <th scope="col">Pr&eacute;nom</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Mobile</th>
                                 <th scope="col">Adresse</th>
-                                <th scope="col">Valeur rapporté</th>
+                                <th scope="col">Valeur rapport&eacute;</th>
                                 <th scope="col">Action</th>
 
 
@@ -49,6 +59,7 @@
                             @foreach (MyWorkManagerSN.Model.Customer cl in Model)
                             {
                                 <tr>
+                                    <td class="showForCsv" hidden><input type="checkbox"  /></td>
                                     <td>@cl.Name</td>
 
                                     <td>@cl.Surname</td>
@@ -131,7 +142,23 @@
 <script type="text/javascript">
     $(document).ready(function () {
      
+        $("#allowConvertTocsv").click(function(){
+            $(".showForCsv").attr("hidden",false);
+            $(this).attr("hidden",true);
+        });
+        $("#cancelCsv").click(function(){
+            $(".showForCsv").attr("hidden",true);
+            $("#allowConvertTocsv").attr("hidden",false);
+        });
+        $("#applyConvertToCsv").click(function(){
+            tableToCSV();
+            $(".showForCsv").attr("hidden",true);
+            $("#allowConvertTocsv").attr("hidden",false);
+        });
 
+        $("#checkAll").change(function(event){
+            $("input:checkbox").prop('checked', $(this).prop("checked"));
+        });
         $("#addAdrsFrom").submit(function (event) {
             event.preventDefault();
             if (document.getElementById('addAdrsFrom').checkValidity()) {

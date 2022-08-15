@@ -94,6 +94,35 @@ namespace MyWorkManagerSN.Service
                 
             }
         }
+        public void AddQuoteLine(Quote o, QuoteLine oLine)
+        {
+            using (var context = new MyEntitiesContext())
+            {
+                var existingQuote = context.Quote
+                .Where(p => p.ID == o.ID)
+                .Include(p => p.Lines)
+                .SingleOrDefault();
+                context.Quote.Include("Lines").Where(i => i.ID == o.ID).FirstOrDefault();
+
+                var existingLine = existingQuote.Lines
+                    .Where(c => c.ID == oLine.ID && c.ID != default(string))
+                    .SingleOrDefault();
+
+                if (existingLine != null)
+                    // Update child
+                    context.Entry(existingLine).CurrentValues.SetValues(oLine);
+                else
+                {
+                    // Insert child
+
+                    existingQuote.Lines.Add(oLine);
+                }
+
+
+                context.SaveChanges();
+
+            }
+        }
 
         public E GetById(string userId,string id)
         {
@@ -145,6 +174,7 @@ namespace MyWorkManagerSN.Service
             }
             return order;
         }
+        
         public List<E> GetAll(Expression<Func<E, bool>> predicate)
         {
             var list = new List<E>();

@@ -1,0 +1,132 @@
+﻿@model MyWorkManagerSN.Model.Quote
+@{
+    ViewBag.Title = "Devis";
+    Layout = null;
+    string userId = ViewData["userId"] as string;
+    MyWorkManagerSN.Model.Customer customer = ViewData["Customer"] as MyWorkManagerSN.Model.Customer;
+    MyWorkManagerSN.Model.User user = ViewData["user"] as MyWorkManagerSN.Model.User;
+    string destinataire_info_Top_margin = "7px";
+    if (user.ShowImageOnInvoice)
+    {
+         destinataire_info_Top_margin = "110px";
+    }
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Devis</title>
+
+
+    <link href="~/css/DefaultFacture.css" rel="stylesheet">
+
+
+</head>
+<body>
+    <header>
+        <h1>Devis</h1>
+
+
+        <div id="destinataire_info" style="margin-top:@destinataire_info_Top_margin">
+            <p style="font-weight: bold;">@customer.Surname @customer.Name</p>
+            <p>@customer.Mobile</p>
+            @if (customer.Address != null)
+            {
+                <p>@customer.Address.Rue</p>
+                <p>@customer.Address.Complement</p>
+                <p>@customer.Address.CodePostal @customer.Address.Ville, @customer.Address.PaysCode </p>
+            }
+
+
+        </div>
+
+        <div id="yourCompany_info">
+            @if (user.ShowImageOnInvoice)
+            {
+                <div><img alt="" src="@("/image/"+user.ProfileImagePath)" class="mr-3"  height="80"></div>
+            }
+
+            <div id="personal_info">
+                <p style="font-weight: bold;">@user.CompanyName</p>
+                <p>@user.Mobile</p>
+                @if (user.Address != null)
+                {
+                    <p>@user.Address.Rue</p>
+                    <p>@user.Address.Complement</p>
+                    <p>@user.Address.CodePostal @user.Address.Ville, @user.Address.PaysCode </p>
+                }
+            </div>
+
+        </div>
+    </header>
+    <article>
+
+        <table class="meta">
+
+            <tr>
+                <th><span>Devis</span></th>
+                <td><span>DV-@String.Format("{0:0000}", Model.NumQuote)</span></td>
+            </tr>
+            <tr>
+                <th><span>Du</span></th>
+                <td><span>@Model.DateCreation.ToString("dd/MM/yyyy")</span></td>
+            </tr>
+        </table>
+        <table class="inventory">
+            <thead>
+                <tr>
+                    <th style="width: 250px;"><span>Désignation</span></th>
+                    <th style="width: 50px"><span>Quantité</span></th>
+                    <th><span>Prix unitaire HT</span></th>
+                    <th><span>Remise</span></th>
+                    <th><span>Montant HT</span></th>
+                    <th  style="width: 50px"><span>TVA</span></th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (MyWorkManagerSN.Model.QuoteLine line in Model.Lines)
+                {
+                    MyWorkManagerSN.Model.Product product = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Product>().GetById(userId, line.ProductId);
+                    MyWorkManagerSN.Model.Category cat = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Category>().GetById(userId, product.CategoryId);
+                    <tr>
+                        <td style="line-break: anywhere;"><a class="cut">-</a><span>@cat.Label - @product.Label</span></td>
+                        <td class="alignRight" style="text-align: right;"><span data-prefix></span><span>@line.Quantity</span></td>
+                        <td><span data-prefix></span><span>@line.UnitPrice @ViewData["devise"]</span></td>
+                        <td><span>@line.Discount @ViewData["devise"]</span></td>
+                        <td ><span data-prefix></span><span>@line.AmountTotalHT @ViewData["devise"]</span></td>
+                        <td class="alignRight" style="text-align: right;"><span data-prefix></span><span>@line.TVA%</span></td>
+                    </tr>
+                }
+                @if(Model.DiscountHT>0){
+                     <tr>
+                        <td><a class="cut">-</a><span>Remise</span></td>
+                        <td class="alignRight" style="text-align: right;"><span data-prefix></span><span>1</span></td>
+                        <td><span data-prefix></span><span>@("-"+Model.DiscountHT) @ViewData["devise"]</span></td>
+                        <td><span>0 @ViewData["devise"]</span></td>
+                        <td ><span data-prefix></span><span>@("-"+Model.DiscountHT) @ViewData["devise"]</span></td>
+                        <td class="alignRight" style="text-align: right;"><span data-prefix></span><span>@Model.DiscountTVA%</span></td>
+                    </tr>
+                            
+                 }
+            </tbody>
+        </table>
+
+        <table class="balance">
+            <tr>
+                <th><span>Total HT</span></th>
+                <td><span>@Model.AmountTotalHT</span><span data-prefix> @user.Devise</span></td>
+            </tr>
+            <tr>
+                <th><span>Total Taxes</span></th>
+                <td><span>@(Model.AmountTotal-Model.AmountTotalHT)</span><span data-prefix> @user.Devise</span></td>
+            </tr>
+            <tr>
+                <th><span>Total TTC</span></th>
+                <td><span>@Model.AmountTotal</span><span data-prefix> @user.Devise</span></td>
+            </tr>
+        </table>
+    </article>
+
+</body>
+</html>

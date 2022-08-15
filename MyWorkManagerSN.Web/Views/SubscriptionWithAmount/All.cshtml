@@ -26,6 +26,7 @@
                     <table id="myTable" class="table table-bordered table-striped verticle-middle dataTableConfig">
                         <thead>
                             <tr>
+                                
                                 <th scope="col">Client</th>
                                 <th scope="col">Mobile</th>
                                 <th scope="col">Montant</th>
@@ -38,6 +39,7 @@
                             @foreach (MyWorkManagerSN.Model.SubscriptionWithAmount sub in Model)
                             {
                                 <tr>
+                                    
                                     @{MyWorkManagerSN.Model.Customer customer = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Customer>().GetById(userId, sub.CustomerId);
                                         string colorAmount = "#58cf72";
                                         string prefix = "+";
@@ -46,7 +48,7 @@
                                             colorAmount = "red" ;
                                             prefix = "";
                                         }
-                                        }
+                                    }
                                     <td>@customer.Surname @customer.Name</td>
                                     <td>@customer.Mobile</td>
                                     <td style="color:@colorAmount">@prefix @sub.Amount @ViewData["devise"]</td>
@@ -123,26 +125,10 @@
 
     $(document).ready(function () {
         $('#searchInput').on('keyup', function () {
-            var input, filter, table, tr, td,td2,td3, i, txtValue;
-            input = document.getElementById("searchInput");
+            var input, filter;
+            input = document.getElementById("searchInput3+6");
             filter = input.value.toUpperCase();
-            table = document.getElementById("myTable");
-            tr = table.getElementsByTagName("tr");
-            for (i = 0; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[0];
-                td2 = tr[i].getElementsByTagName("td")[1];
-                td3 = tr[i].getElementsByTagName("td")[2];
-                if (td || td2 ||td3) {
-                    txtValue = td.textContent || td.innerText;
-                    txtValue2 = td2.textContent || td2.innerText;
-                    txtValue3 = td3.textContent || td3.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1 || txtValue2.toUpperCase().indexOf(filter) > -1 || txtValue3.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
-                }
-            }
+            datatable.search(filter).draw();
         });
         $("#oAmount").change(function () {
              if (isNaN($("#oAmount").val())) {

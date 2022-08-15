@@ -1,25 +1,23 @@
-﻿@model MyWorkManagerSN.Model.Order
+﻿@model MyWorkManagerSN.Model.Quote
 @{
-    ViewData["Title"] = "Commande";
+    ViewData["Title"] = "Devis";
     if (Model.Lines == null)
     {
-        Model.Lines = new List<MyWorkManagerSN.Model.OrderLine>();
+        Model.Lines = new List<MyWorkManagerSN.Model.QuoteLine>();
     }
     Dictionary<string, string> listStates = ViewData["listStates"] as Dictionary<string, string>;
     string hidden = "";
-    string hiddenSub = "hidden";
-    if (Model.IsOrderSubuscription) {
-        hiddenSub = "";
-    }
+
     if (Model.Status != "En cours")
     {
         hidden = "hidden";
     }
     string userId = ViewData["userId"] as string ;
+    MyWorkManagerSN.Model.Order order = ViewData["Order"] as MyWorkManagerSN.Model.Order;
     MyWorkManagerSN.Model.Customer customer = ViewData["Customer"] as MyWorkManagerSN.Model.Customer;
+
+
 }
-
-
 <style>
     /* Dropdown Button */
     .trAdded, .trBase {
@@ -109,12 +107,12 @@
         <div class="col p-md-0">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                <li class="breadcrumb-item active"><a href="javascript:void(0)">Commandes</a></li>
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">Devis</a></li>
             </ol>
         </div>
     </div>
     <div style="display:inline-block">
-        <h2 style="display:inline-block">Commande <span @hiddenSub>d'abonnement </span>CM-@String.Format("{0:0000}", Model.NumOrder)</h2>
+        <h2 style="display:inline-block">Devis DV-@String.Format("{0:0000}", Model.NumQuote)</h2>
         <div class="btn-group" role="group">
             <button type="button" class="btn mb-1 @ViewData["stateColor"] btn-rounded  text-white" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">@Model.Status</button>
         </div>
@@ -123,17 +121,25 @@
     <div class="row mt-3">
         <div class="col-lg-4 col-xs-3">
             <div class="card amount" style="border: double black; width: 70%; background-color: transparent;">
+                @if (order != null)
+                    {
+                        <a href="@Url.Action("Show","Order", new { id = order.ID })" style="text-decoration-line: underline;"><b style="padding-left: 1.25rem;padding-top: 0.1rem;"><i class="fa fa-cart-plus"></i> CM-@order.NumOrder</b></a>
+                    }
                 <div class="card-body amountCard">
+                    
                     <h2 class="card-title"><i class="fa fa-user"></i> Client</h2>
                     <div class="text-center">
                         <b>@customer.Surname @customer.Name</b>
                         <p class="mb-0">@customer.Email</p>
-                        <pclass ="mb-0">@customer.Mobile</pclass>
-                        <p @hiddenSub><span class="badge badge-pill text-white badge-secondary">Solde : @ViewData["SoldeAbonnement"] @ViewData["devise"] </span></p>
+                        <p class ="mb-0">@customer.Mobile</p>
+                       
 
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="col-lg-4 col-xs-3">
+            
         </div>
         <div class="col-lg-4 col-xs-3">
             <div class="card gradient-2 amount">
@@ -147,31 +153,21 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4 col-xs-3">
-            <div class="card gradient-2 amount">
-                <div class="card-body amountCard">
-                    <h3 class="card-title text-white">Montant facturé TTC</h3>
-                    <div class="d-inline-block">
-                        <h2 class="text-white"><span id="AmountPaidOrder">@Model.AmountPaid</span> @ViewData["devise"]</h2>
-                        <p class="text-white mb-0">Mode de paiement : @ViewData["PaymentMode"]</p>
-                    </div>
-                    <span class="float-right display-5 opacity-5"><i class="fa fa-money"></i></span>
-                </div>
-            </div>
-        </div>
+        
     </div>
 
     <div class="button-group">
         <div class="btn-group">
+            <button type="button" class="btn btn-primary editReduction" @hidden>Remise</button>
             @foreach (var etat in listStates)
             {
                 <button type="button" class="etat btn btn-primary" data-id="@etat.Key" data-etat="@etat.Key">@etat.Value</button>
             }
 
-            <button type="button" class="btn btn-primary editReduction" @hidden>Remise</button>
-            <button type="button" id="paymentBtn" class="btn btn-primary" @hidden>Payer</button>
+            
+         
         </div>
-        <a style="float: right;" asp-controller="Order" asp-action="DefaultFacture" asp-route-id="@Model.ID" id="showInvoice" class="btn btn-warning text-white"><i class="fa fa-flag-checkered" aria-hidden="true"></i> Facture </a>
+        <a style="float: right;" asp-controller="Quote" asp-action="DefaultDevis" asp-route-id="@Model.ID" id="showDevis" class="btn btn-warning text-white"><i class="fa fa-flag-checkered" aria-hidden="true"></i> Voir devis </a>
     </div>
 
     <div class="">
@@ -198,7 +194,7 @@
                             </tr>
                         </thead>
                         <tbody id="tBody">
-                            @foreach (MyWorkManagerSN.Model.OrderLine line in Model.Lines)
+                            @foreach (MyWorkManagerSN.Model.QuoteLine line in Model.Lines)
                             {
                                 MyWorkManagerSN.Model.Product product = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Product>().GetById(userId, line.ProductId);
                                 MyWorkManagerSN.Model.Category cat = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Category>().GetById(userId, product.CategoryId);
@@ -255,7 +251,7 @@
                     <button id="addLineBtn" type="button" class="btn mb-1 btn-primary" @hidden>Ajouter</button>
                     <div id="myDropdown" class="dropdown-content">
                         <div class="autocomplete" style="display: inherit; ">
-                            @{ string functionUrl = "GetProsuctFilteredByLine?OrderId=" + Model.ID;}
+                            @{ string functionUrl = "GetProductFilteredByQuoteLine?QuoteId=" + Model.ID;}
                             <input id="inputAutoComplete" class="form-control input-default" data-controller="Product" data-method="@functionUrl" type="text" name="myCountry" placeholder="Nom produit" autocomplete="off">
                         </div>
                     </div>
@@ -272,7 +268,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="ModalLabel">Appliquer une remise à la commande</h5>
+                    <h5 class="modal-title" id="ModalLabel">Appliquer une remise au devis</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -359,6 +355,7 @@
 
 </div>
 
+
 <script type="text/javascript">
 
     var editActivate = false;
@@ -390,7 +387,7 @@
         } else {
             var quantityEdit = $("#oquantityEdit").val();
             var discountEdit = $("#odiscountEdit").val().replace(".", ",");
-            $.post("/Order/EditOrderLine", { OrderId: "@Model.ID", LineId: lineId, Quantity: quantityEdit, Discount: discountEdit }, function (res) {
+            $.post("/Quote/EditQuoteLine", { QuoteId: "@Model.ID", LineId: lineId, Quantity: quantityEdit, Discount: discountEdit }, function (res) {
                 if (res.success) {
                     $("#qte-" + lineId).html(quantityEdit);
                     $("#discount-" + lineId).html(discountEdit + " @ViewData["devise"]");
@@ -424,27 +421,7 @@
     }
     );
     
-    $("#paymnetForm").submit(function (event) {
-        event.preventDefault();
-        if (document.getElementById('paymnetForm').checkValidity()) {
-            var amount = $("#amountRToPay").val().replace(".", ",");
-            var paymentMode = $("#paymenModeId").val();
-            $.post("/Order/DoPayment", { OrderId:"@Model.ID", PaymentModeID: paymentMode, AmountPaid : amount}, function (res) {
-                if (res.success) {
-                    location.reload();
-                } else {
-                    toastError("Erreur", res._acts.title)
-                }
-            });
-        }
-    });
-    $("#payAll").click(function () {
-        $("#amountRToPay").val(valRestant());
-    });
-    $("#paymentBtn").click(function () {
-        $("#amountRToPay").val(valRestant());
-        $("#modalPayment").modal();
-    });
+
     $(".editReduction").click(function () {
         $("#discountTVA").val(@Model.DiscountTVA);
         $("#modalAddReduction").modal();
@@ -463,7 +440,7 @@
         }
     });
     function editOrderReduction (otva,amountHT, amountTtc){
-        $.post("/Order/UpdateDiscount", { OrderId:"@Model.ID", DiscountTVA : otva, DiscountHT: amountHT, DiscountTTC : amountTtc}, function (res) {
+        $.post("/Quote/UpdateDiscount", { QuoteId:"@Model.ID", DiscountTVA : otva, DiscountHT: amountHT, DiscountTTC : amountTtc}, function (res) {
                 if (res.success) {
                     location.reload();
                 } else {
@@ -522,7 +499,7 @@
 
                 console.log(oId);
 
-                $.post("/Order/RemoveOrderLine", { OrderId: "@Model.ID",LineId: oId }, function (res) {
+                $.post("/Quote/RemoveQuoteLine", { QuoteId: "@Model.ID",LineId: oId }, function (res) {
                     if (res.success) {
                         if (comefromAdd) {
                             trToremove.parentNode.removeChild(trToremove);
@@ -544,10 +521,32 @@
 
         $(".etat").click(function () {
             var etat = $(this).attr("data-etat");
-            $.post("/Order/UpdateState", { id:"@Model.ID", etat: etat }, function (res) {
+            $.post("/Quote/UpdateState", { id:"@Model.ID", etat: etat }, function (res) {
                 if (res.success) {
                     toastSuccess("Succès", res._acts.title);
-                    location.reload();
+                    if(etat=="Gagné"){
+                        if (confirm("Votre devis a été marqué comme gagné! Voulez vous créer la commande ?")) {
+                            $.post("/Quote/CreateOrder", { QuoteId:"@Model.ID"}, function (res) {
+                                if (res.success) {
+                                    toastSuccess("Succès", res._acts.title);
+                                    window.location.href="/Order/Show/"+res._acts.orderID;
+                                }else{
+                                    toastError("Erreur", res._acts.title)
+                                    if(res._acts.orderID!=""){
+                                        window.location.href="/Order/Show/"+res._acts.orderID;
+                                    }
+                                    location.reload();
+
+                                }
+                            });
+                        }else{
+                            location.reload();
+                        }
+                        
+                    }else{
+                        location.reload();
+                    }
+                    
                 } else {
                     toastError("Erreur", res._acts.title)
                 }
@@ -670,7 +669,7 @@
             var ttcAdd = $("#ottcAdd").val().replace(".", ",");
             var trNewObj = $("<tr></tr>");
 
-            $.post("/Order/AddOrderLine", { OrderId: "@Model.ID", ProductId: product_id, Quantity: quantityAdd, UnitDiscount: discountAdd, PriceHt: htAdd, PriceTTC: ttcAdd }, function (res) {
+            $.post("/Quote/AddQuoteLine", { QuoteId: "@Model.ID", ProductId: product_id, Quantity: quantityAdd, UnitDiscount: discountAdd, PriceHt: htAdd, PriceTTC: ttcAdd }, function (res) {
                 if (res.success) {
                     $("#AmountTotalOrder").html(res._acts.newAmountTotal)
                     toastSuccess("Succès", res._acts.title);

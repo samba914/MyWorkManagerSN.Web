@@ -1,9 +1,9 @@
-﻿@model List<MyWorkManagerSN.Model.Order>
+﻿@model List<MyWorkManagerSN.Model.Quote>
+
 @{
-    ViewData["Title"] = "Toutes les commandes";
+    ViewData["Title"] = "Tous les devis";
     string userId = ViewData["userId"] as string;
     MyWorkManagerSN.Model.User user = ViewData["user"] as MyWorkManagerSN.Model.User;
-    Dictionary<string, string> mapStatus = ViewData["status"] as Dictionary<string, string>;
 }
 
 
@@ -30,15 +30,15 @@
         <div class="col p-md-0">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>
-                <li class="breadcrumb-item active"><a href="javascript:void(0)">Commandes</a></li>
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">Devis</a></li>
             </ol>
         </div>
     </div>
-    <h2>Toutes les commandes</h2>
+    <h2>Tous les devis</h2>
 
     <div class="">
         <div class="row">
-            <button type="button" id="addOrder" data-acionType="add" class="action btn mb-1 btn-primary" style=" margin-left: 2%;">Ajouter une commande</button>
+            <button type="button" id="addQuote" data-acionType="add" class="action btn mb-1 btn-primary" style=" margin-left: 2%;">Ajouter un devis</button>
             <div class="input-group-prepend col-md-7">
             </div>
             <input id="serachInput" type="search" class="form-control col-md-2 " placeholder="Recherche" aria-label="Search Dashboard">
@@ -52,19 +52,16 @@
                 <div class="default-tab">
                     <ul class="nav nav-tabs mb-3" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active status" data-toggle="tab" href="#all" data-etat="">Toutes les commandes</a>
+                            <a class="nav-link active status" data-toggle="tab" href="#all" data-etat="">Tous les devis</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link status" data-toggle="tab" href="#all" data-etat="En cours">Commandes en cours</a>
+                            <a class="nav-link status" data-toggle="tab" href="#all" data-etat="En cours">Devis en cours</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link status" data-toggle="tab" href="#all" data-etat="Payée">Commandes payées</a>
+                            <a class="nav-link status" data-toggle="tab" href="#all" data-etat="Gagné">Devis gagnés</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link status" data-toggle="tab" href="#all" data-etat="Livrée">Commandes livrées</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link status" data-toggle="tab" href="#all" data-etat="Annulée">Commandes annulées</a>
+                            <a class="nav-link status" data-toggle="tab" href="#all" data-etat="Perdu">Devis perdus</a>
                         </li>
                     </ul>
                     <div class="tab-content">
@@ -73,10 +70,10 @@
                                 <table id="myTable" class="table table-bordered table-striped verticle-middle dataTableConfig ">
                                     <thead>
                                         <tr>
-                                            <th scope="col">N° Commande</th>
+                                            <th scope="col">N° Devis</th>
                                             <th scope="col">Client</th>
                                             <th scope="col">Montant Total TTC</th>
-                                            <th scope="col">Restant à payer</th>
+                                
                                             <th scope="col">Statut</th>
                                             <th scope="col" date-type="date">Date de création</th>
 
@@ -84,25 +81,22 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach (MyWorkManagerSN.Model.Order order in Model)
+                                        @foreach (MyWorkManagerSN.Model.Quote quote in Model)
                                         {
                                             <tr>
-                                                <td><a href="@Url.Action("Show","Order", new { id = order.ID })" style="text-decoration-line: underline; font-size: initial; font-weight: initial;">CM-@String.Format("{0:0000}", order.NumOrder)</a></td>
+                                                <td><a href="@Url.Action("Show","Quote", new { id = quote.ID })" style="text-decoration-line: underline; font-size: initial; font-weight: initial;">DV-@String.Format("{0:0000}", quote.NumQuote)</a></td>
                                                 @{
-                                                    MyWorkManagerSN.Model.Customer c = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Customer>().GetById(userId, order.CustomerId);
+                                                    MyWorkManagerSN.Model.Customer c = new MyWorkManagerSN.Service.DbManager<MyWorkManagerSN.Model.Customer>().GetById(userId, quote.CustomerId);
                                                 }
                                                 <td>@c.Surname @c.Name</td>
 
-                                                <td data-type="amount">@order.AmountTotal @ViewData["devise"]</td>
-                                                @{
-                                                    double restToPay = order.AmountTotal - order.AmountPaid;
-                                                }
-                                                <td data-type="amount">@restToPay @ViewData["devise"]
+                                                <td data-type="amount">@quote.AmountTotal @ViewData["devise"]</td>
+                                               
 
 
-                                                <td><i class="fa fa-circle-o @mapStatus.GetValueOrDefault(order.Status)  mr-2"></i> @order.Status</td>
+                                                <td>@quote.Status</td>
 
-                                                <td data-type="date">@order.DateCreation.ToString("dd/MM/yyyy")</td>
+                                                <td data-type="date">@quote.DateCreation.ToString("dd/MM/yyyy")</td>
 
 
                                             </tr>
@@ -131,21 +125,14 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="ModalLabel">Ajouter une commande</h5>
+                    <h5 class="modal-title" id="ModalLabel">Ajouter une devis</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <form id="catForm">
                     <div class="modal-body">
-                        @if (user.AccountOptions != null && user.AccountOptions.ActiveSubWithAmount)
-                        {
-                            <div style="text-align-last: center">
-                                <button id="modeStandard" type="button" class="btn mb-1 btn-outline-primary orderMode" data-modeIsSub="false">Standard</button>
-                                <button id="modeIsSub" type="button" class="btn mb-1 btn-outline-primary orderMode modeNotSelected" data-modeIsSub="true">Abonnement</button>
-                            </div>
-                            <br />
-                        }
+
                         <p>Rechercher un client par : </p>
                         <input type="radio" name="searchType" id="searchType1" value="Prenom_Nom" checked>
                         <label class="mr-3" for="searchType1">Prénom Nom</label>
@@ -208,37 +195,16 @@
             datatable.column(4).search(status).draw();
         });
 
-        $(".orderMode").click(function () {
-            $("#inputAutoComplete").val("");
-            $("#inputAutoComplete").attr("data-id", "");
-            if ($(this).attr("data-modeIsSub") == "true") {
-                IsSubscription = true;
-                $("#modeIsSub").removeClass("modeNotSelected");
-                $("#modeStandard").addClass("modeNotSelected");
-                $("#addNewCustomer").attr("hidden", true);
-                $("#inputAutoComplete").attr("data-method", "GetAllCustomerForSub");
-            } else {
-                IsSubscription = false;
-                $("#addNewCustomer").attr("hidden", false);
-                $("#modeIsSub").addClass("modeNotSelected");
-                $("#modeStandard").removeClass("modeNotSelected");
-                $("#inputAutoComplete").attr("data-method", "");
-            }
-            autocomplete(document.getElementById("inputAutoComplete"), seachType);
-
-
-        });
-
         $("input").removeAttr('readonly');
         $("#datepickerCustom").attr("readonly", true);
 
         $("#catForm").submit(function (event) {
             event.preventDefault();
             if(document.getElementById('catForm').checkValidity()){
-                $.post("/Order/CreateOrder", { date: $("#datepickerCustom").val(), customerId: $("#inputAutoComplete").attr("data-id"), isSubMode: IsSubscription }, function (res) {
+                $.post("/Quote/CreateQuote", { date: $("#datepickerCustom").val(), customerId: $("#inputAutoComplete").attr("data-id")}, function (res) {
                 if (res.success) {
                     toastSuccess("Succès", res._acts.title);
-                    window.location.href = "/Order/Show/" + res._acts.orderId;
+                   // window.location.href = "/Quote/Show/" + res._acts.quoteId;
                 } else {
                     console.log(res)
                     toastError("Erreur", res._acts.title)
@@ -249,7 +215,7 @@
         });
 
 
-        $("#addOrder").click(function () {
+        $("#addQuote").click(function () {
             autocomplete(document.getElementById("inputAutoComplete"), seachType);
 
             $("#exampleModals").modal();
