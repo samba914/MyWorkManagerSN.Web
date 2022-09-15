@@ -27,6 +27,14 @@ namespace MyWorkManagerSN.Service
             }
             
         }
+
+        public List<User> GetAllUsers()
+        {
+            List<User> users = new List<User>();
+            users = new DbManager<User>().GetAll();
+            return users;
+        }
+
         public void UpdateUserAdress(User element)
         {
             using (var context = new MyEntitiesContext())

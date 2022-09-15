@@ -23,6 +23,7 @@ namespace MyWorkManager.Controllers.Custom
             User user = new DbManager<User>().Get(u => u.UserId == userId);
             ViewData["devise"] = user.Devise;
             List<Product> listProduct = new DbManager<Product>().GetAll(p=>p.UserId==userId);
+         
             ViewData["userId"] = userId;
             listProduct= listProduct.OrderBy(p => p.Stock).ToList();
             return View(listProduct);

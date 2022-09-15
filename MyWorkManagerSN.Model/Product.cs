@@ -17,6 +17,7 @@ namespace MyWorkManagerSN.Model
         public int TVA { get; set; }
         public double PriceTtc { get; set; }
         public string CategoryId { get; set; }
+        [ForeignKey("CategoryId")]
         public virtual Category Category { get; set; }
         public int Stock { get; set; }
         public List<Field>? MoreFields { get; set; }

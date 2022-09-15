@@ -25,6 +25,8 @@ namespace MyWorkManagerSN.Model
         public DateTime DateOfSubscription { get; set; }
         public bool HaveActiveContract { get; set; }
         public string? ContractId { get; set; }
+        [ForeignKey("ContractId")]
+        public virtual Contract? Contract { get; set; }
         public AccountOptions AccountOptions { get; set; }
     }
 }

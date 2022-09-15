@@ -1,7 +1,7 @@
-﻿
-@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>
-@{
-    ViewData["Title"] = "Liste des rôles";
+﻿@model List<MyWorkManagerSN.Model.User>
+
+ @{
+    ViewData["Title"] = "Liste des utilisatuers";
     
 }
 
@@ -15,14 +15,15 @@
             </ol>
         </div>
     </div>
-    <h2>Tous les rôles</h2>
+    <h2>Tous les utilisateurs</h2>
 
     <div class="">
         <div class="row">
-            <button type="button" id="addroles" data-acionType="add" class="action btn mb-1 btn-primary" style=" margin-left: 2%;">Ajouter un rôle</button>
+           
             <div class="input-group-prepend col-md-7">
 
             </div>
+            <input id="serachInput" type="search" class="form-control col-md-2 " placeholder="Recherche" aria-label="Search Dashboard">
 
         </div>
 
@@ -33,19 +34,24 @@
                     <table id="myTable" class="table table-bordered table-striped verticle-middle dataTableConfig">
                         <thead>
                             <tr>
-                                <th scope="col">Id</th>
-                                <th scope="col">Nom</th>
+                                <th scope="col">Nom Complet</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Version d'essaie</th>
+                                <th scope="col">Date fin essaie</th>
+                                <th scope="col">Date fin abonnement</th>
+                                <th scope="col">Périodicité</th>
+
 
 
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var role in Model)
+                            @foreach (var user in Model)
                             {
                                 <tr>
-                                    <td>@role.Id</td>
+                                    <td>@user.Username</td>
 
-                                    <td>@role.Name</td>
+                                    <td>@user.Email</td>
 
                                 </tr>
                             }
