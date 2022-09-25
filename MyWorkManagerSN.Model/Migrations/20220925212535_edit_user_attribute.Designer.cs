@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyWorkManagerSN.Model;
 
@@ -11,9 +12,10 @@ using MyWorkManagerSN.Model;
 namespace MyWorkManagerSN.Model.Migrations
 {
     [DbContext(typeof(MyEntitiesContext))]
-    partial class MyEntitiesContextModelSnapshot : ModelSnapshot
+    [Migration("20220925212535_edit_user_attribute")]
+    partial class edit_user_attribute
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -425,9 +427,6 @@ namespace MyWorkManagerSN.Model.Migrations
 
                     b.Property<bool>("ShowImageOnInvoice")
                         .HasColumnType("bit");
-
-                    b.Property<DateTime>("TrialEndDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(max)");

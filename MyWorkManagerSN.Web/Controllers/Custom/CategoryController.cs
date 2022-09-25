@@ -11,7 +11,7 @@ using System.Web;
 
 namespace MyWorkManagerSN.Controllers.Custom
 {
-    [Authorize]
+    [mwmAuthorize(Roles =GlobalVariableService.RoleActiveAccount)]
     public class CategoryController : Controller
     {
         // GET: Category

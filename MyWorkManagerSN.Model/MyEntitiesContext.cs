@@ -9,7 +9,7 @@ namespace MyWorkManagerSN.Model
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Data source=DESKTOP-TGDPFB8\SQLEXPRESS;initial catalog=WorkManagerCoreDB;integrated security=True;");
+            optionsBuilder.UseSqlServer(@"Data source=HP_SAMBA\SQLEXPRESS;initial catalog=WorkManagerCoreDB;integrated security=True;");
         }
 
         //public DbSet<MyProjectGVV> MyProjectGVV { get; set; }

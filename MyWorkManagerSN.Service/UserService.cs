@@ -1,4 +1,6 @@
-﻿using MyWorkManagerSN.Model;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using MyWorkManagerSN.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,19 @@ namespace MyWorkManagerSN.Service
 {
     public class UserService
     {
+        public  async void ConfigureAccountOnRegister(IdentityUser user,String userName, String email,UserManager<IdentityUser> userManager)
+        {
+            AccountOptions aO = new AccountOptions();
+            aO.ActiveSubWithAmount = false;
+            new DbManager<User>().Add(new User { Devise = "", Username = userName, UserId = user.Id, Email = email, AccountOptions = aO, Address = new Address(), IsTrial = true, DateOfSubscription = DateTime.Now,TrialEndDate=DateTime.Now.AddDays(30), HaveActiveContractOrTrial = true }); ;
+            await userManager.AddToRoleAsync(user, GlobalVariableService.RoleActiveAccount);
+            PaymentMode paymentModeESP = new PaymentMode { UserId = user.Id, Code = "ESP", Label = "Espèces" };
+            PaymentMode paymentModeCB = new PaymentMode { UserId = user.Id, Code = "CB", Label = "Carte Bancaire" };
+            Customer customer = new Customer { UserId = user.Id, Name = "Anonyme", Surname = "Client", Email = "", Mobile = "", Address = new Address() };
+            new DbManager<Customer>().Add(customer);
+            new DbManager<PaymentMode>().Add(paymentModeESP);
+            new DbManager<PaymentMode>().Add(paymentModeCB);
+        }
         public void UpdateOptions(string userId, string optionProprety,bool value)
         {
             User user = new Service.DbManager<User>().Get(u => u.UserId == userId);

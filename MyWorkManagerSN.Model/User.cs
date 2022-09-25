@@ -22,8 +22,9 @@ namespace MyWorkManagerSN.Model
         public string? CompanyName { get; set; }
         public bool ShowImageOnInvoice { get; set; }
         public bool IsTrial { get; set; }
+        public DateTime TrialEndDate { get; set; }
         public DateTime DateOfSubscription { get; set; }
-        public bool HaveActiveContract { get; set; }
+        public bool HaveActiveContractOrTrial { get; set; }
         public string? ContractId { get; set; }
         [ForeignKey("ContractId")]
         public virtual Contract? Contract { get; set; }

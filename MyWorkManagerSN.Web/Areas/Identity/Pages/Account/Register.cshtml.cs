@@ -100,7 +100,7 @@ namespace MyWorkManagerSN.Web.Areas.Identity.Pages.Account
             /// </summary>
             [DataType(DataType.Password)]
             [Display(Name = "Confimer votre mot de passe")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Compare("Password", ErrorMessage = "Les deux mots de passe saisis ne correspondent pas.")]
             public string ConfirmPassword { get; set; }
         }
 
@@ -125,15 +125,7 @@ namespace MyWorkManagerSN.Web.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
-                    AccountOptions aO= new AccountOptions();
-                    aO.ActiveSubWithAmount = false;
-                    new DbManager<User>().Add(new User { Devise = "", Username = Input.UserName, UserId = user.Id, Email = Input.Email,AccountOptions= aO, Address = new Address()});
-                    PaymentMode paymentModeESP = new PaymentMode { UserId = user.Id, Code = "ESP", Label = "Espèces" };
-                    PaymentMode paymentModeCB = new PaymentMode { UserId = user.Id, Code = "CB", Label = "Carte Bancaire" };
-                    Customer customer = new Customer { UserId = user.Id, Name = "Anonyme", Surname = "Client", Email = "", Mobile = "", Address = new Address() };
-                    new DbManager<Customer>().Add(customer);
-                    new DbManager<PaymentMode>().Add(paymentModeESP);
-                    new DbManager<PaymentMode>().Add(paymentModeCB);
+                    new UserService().ConfigureAccountOnRegister(user, Input.UserName, Input.Email,_userManager);
 
                     _logger.LogInformation("User created a new account with password.");
 
