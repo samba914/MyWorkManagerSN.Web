@@ -1,8 +1,13 @@
-﻿@model List<MyWorkManagerSN.Model.User>
+﻿@using Microsoft.AspNetCore.Identity
+@model List<MyWorkManagerSN.Model.User>
 
- @{
+@{
     ViewData["Title"] = "Liste des utilisatuers";
-    
+    List<IdentityRole> roles = ViewData["listRoles"] as List<IdentityRole>;
+    if(roles==null){
+        roles = new List<IdentityRole>();
+    }
+
 }
 
 <div class="content-body" style="margin:auto; padding:0 5% 0 5%">
@@ -38,6 +43,9 @@
                                 <th scope="col">Email</th>
                                 <th scope="col">Version d'essaie</th>
                                 <th scope="col">Date fin essaie</th>
+                                <th scope="col">Abonnement actif</th>
+                                <th scope="col">Contrat</th>
+                                <th scope="col">Autorisations</th>
                                 <th scope="col">Date fin abonnement</th>
                                 <th scope="col">Périodicité</th>
 
@@ -52,6 +60,17 @@
                                     <td>@user.Username</td>
 
                                     <td>@user.Email</td>
+                                    <td>@user.IsTrial</td>
+                                    <td class="userTrial" data-userId="@user.ID" data-email="@user.Email" data-username="@user.Username" data-dateEndTrial="@user.TrialEndDate.ToString("dd/MM/yyyy")">@user.TrialEndDate.ToString("dd/MM/yyyy")</td>
+                                    <td>@user.HaveActiveContractOrTrial</td>
+                                    <td>
+                                        @if(@user.ContractId==null){
+                                            <button>Pas de contrat</button>
+                                        }else{
+                                            <button>Voir contrat</button>
+                                        }
+                                    </td>
+                                    <td><a class="btn btn-info seeAutotisations"  data-userIdentityId="@user.UserId" data-email="@user.Email" data-username="@user.Username" >voir</a></td>
 
                                 </tr>
                             }
@@ -66,11 +85,11 @@
 
 
     </div>
-    <div class="modal fade" id="exampleModals" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="autorisationModal" tabindex="-1" role="dialog" aria-labelledby="autorisationModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="ModalLabel">Ajouter un role</h5>
+                    <h5 class="modal-title" id="ModalLabel">Autorisations de l'utilisateur</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -79,14 +98,64 @@
                     <div class="modal-body">
                     
                             <div class="form-group">
-                                <label for="message-text" class="col-form-label">Nom</label>
-                                <input type="text" class="form-control input-default" id="oName" placeholder="Nom" required>
+                                <span>Nom complet : </span> <span id="usernameModal"></span>
                             </div>
+                            <div class="form-group">
+                                <span>Email : </span> <span id="emailModal"></span>
+                            </div>
+                            <div class="form-group">
+                                <b>Autorisations</b>
+                                <br/>
+                                @foreach(IdentityRole role in roles){
+                                    <div class="mt-2">
+                                       <span class="mr-2"><input type="checkbox" id="@role.Name" data-rolename="@role.Name" class="roleCheck" /></span> <span> @role.Name</span>
+                                    </div>
+                                }
+
+                            </div>
+
                     
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" id="editModelSubmit" class="btn btn-info">Ajouter</button>
+                        <button type="submit" id="editUserRole" class="btn btn-info">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="trialModal" tabindex="-1" role="dialog" aria-labelledby="trialModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ModalLabel">Version d'essai'</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="trialForm">
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <span>Nom complet : </span> <span id="usernameModalTrial"></span>
+                        </div>
+                        <div class="form-group">
+                            <span>Email : </span> <span id="emailModalTrial"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Date de fin version d'essai</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" readonly  id="datepickerCustom" placeholder="dd/mm/yyyy"> <span class="input-group-append"><span class="input-group-text"><i class="mdi mdi-calendar-check"></i></span></span>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" id="editUserTrial" class="btn btn-info">Enregistrer</button>
                     </div>
                 </form>
             </div>
@@ -98,36 +167,126 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+        $('.userTrial').hover(function () {
+            $(this).css('cursor', 'pointer');
+        });
+        $(".userTrial").click(function () {
+            $("#datepickerCustom").attr("readonly", true);
+            var email = $(this).attr("data-email");
+            var username = $(this).attr("data-username");
+            var userIdentityId = $(this).attr("data-userIdentityId");
+            var userId = $(this).attr("data-userId");
+            $("#usernameModalTrial").text(username);
+            $("#emailModalTrial").text(email);
+            var date = $(this).attr("data-dateEndTrial");
+            $("#editUserTrial").attr("data-userid", userId);
+            $("#editUserTrial").attr("data-userIdentityId",userIdentityId);
+            $("#datepickerCustom").val(date);
+            $("#trialModal").modal();
+        });
 
-        $(".action").click(function () {
-   
-            $("#exampleModals").modal();
+        $(".seeAutotisations").click(function () {
+            $(".roleCheck").attr("checked", false);
+            var email = $(this).attr("data-email");
+            var username = $(this).attr("data-username");
+            var userIdentityId = $(this).attr("data-userIdentityId");
+            var userId = $(this).attr("data-userId");
+            $("#usernameModal").text(username);
+            $("#emailModal").text(email);
+            $("#editUserRole").attr("data-userid", userIdentityId);
+
+            $.get("/Role/GetUserRoles?userId=" + userIdentityId, function (res) {
+                if (res.success) {
+                    res._acts.roles.forEach(function (roleName) {
+                        $("#" + roleName).attr("checked", true);
+                    });
+                    
+                } else {
+                    console.log(res)
+                    toastError("Erreur", res._acts.title)
+                }
+
+            });
+
+            $("#autorisationModal").modal();
+
+
+        });
+        $("#trialForm").submit(function (event) {
+
+            event.preventDefault()
+            if (document.getElementById('trialForm').checkValidity()) {
+                var userId = $("#editUserTrial").attr("data-userid");
+                var userIdentityId = $("#editUserTrial").attr("data-userIdentityId");
+                var date = $("#datepickerCustom").val();
+                console.log({ userId: userId, date: date, userIdentityId: userIdentityId });
+                $.post("/User/UpdateUserTrial", { userId: userId, date: date, userIdentityId: userIdentityId }, function (res) {
+                    console.log(res)
+                    if (res.success) {
+                        toastSuccess("Succès", res._acts.title);
+                        location.reload();
+                    } else {
+                        toastError("Erreur", res._acts.title)
+                    }
+
+                })
+
+                $("#autorisationModal").modal("hide");
+
+            }
+
 
         });
         $("#roleForm").submit(function (event) {
             
             event.preventDefault()
-            console.log("iii")
             if (document.getElementById('roleForm').checkValidity()) {
-                var oName = $("#oName").val();
-               
-                    $.post("/Role/CretaeRole", { name: oName }, function (res) {
-                        console.log(res)
-                        if (res.success) {
-                            toastSuccess("Succès", res._acts.title);
-                            location.reload();
-                        } else {
-                            console.log(res)
-                            toastError("Erreur", res._acts.title)
-                        }
+                var userIdentityId = $("#editUserRole").attr("data-userid");
+                var listCheckUser = []
+                $('.roleCheck').each(function () {
+                    if ($(this).prop("checked") == true){
 
-                    })
+                        listCheckUser.push($(this).attr("data-roleName"));
+                    }
+                });
+                console.log(listCheckUser);
+
+                $.post("/Role/UpdateUserRoles", { listRoles: listCheckUser, userId: userIdentityId }, function (res) {
+                        console.log(res)
+                    if (res.success) {
+                         toastSuccess("Succès", res._acts.title);
+                         location.reload();
+                    } else {
+                         toastError("Erreur", res._acts.title)
+                    }
+
+                })
                 
-                $("#exampleModals").modal("hide");
+                $("#autorisationModal").modal("hide");
 
             }
             
             
+        });
+        (function ($) {
+            $.fn.datepicker.dates['fr'] = {
+                days: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+                daysShort: ["Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam."],
+                daysMin: ["D", "L", "Ma", "Me", "J", "V", "S"],
+                months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+                monthsShort: ['Janv.', 'Févr.', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil.', 'Août', 'Sept.', 'Oct.', 'Nov.', 'Déc.'],
+                today: "Aujourd'hui",
+                monthsTitle: "Mois",
+                clear: "Effacer",
+                weekStart: 1,
+                format: "dd/mm/yyyy"
+            };
+        }(jQuery));
+
+        $('#datepickerCustom').datepicker({
+            language: 'fr',
+            autoclose: true,
+            todayHighlight: true
         });
        
 

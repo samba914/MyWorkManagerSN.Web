@@ -11,14 +11,19 @@ using System.Web;
 
 namespace MyWorkManagerSN.Controllers.Custom
 {
-    [mwmAuthorize(Roles =GlobalVariableService.RoleActiveAccount)]
+    [Authorize(Roles =GlobalVariableService.RoleActiveAccount)]
     public class CategoryController : Controller
     {
+        private string userId;
+        public CategoryController()
+        {
+            this.userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
         // GET: Category
 
         public ActionResult All()
         {
-            string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
             User user = new DbManager<User>().Get(u => u.UserId == userId);
             ViewData["userId"] = userId;
             List<Category> listCat = new DbManager<Category>().GetAll(c=> c.UserId==userId);
@@ -27,7 +32,7 @@ namespace MyWorkManagerSN.Controllers.Custom
         [HttpPost]
         public JsonResult Add(string code, string label)
         {
-            string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
             try
             {
                 Category categorie = new DbManager<Category>().Get(c => c.UserId == userId && c.Code == code);
@@ -49,7 +54,7 @@ namespace MyWorkManagerSN.Controllers.Custom
         [HttpPost]
         public JsonResult Update(string code, string label)
         {
-            string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
             try
             {
                 Category categorie = new DbManager<Category>().Get(c => c.UserId == userId && c.Code == code);
@@ -72,7 +77,7 @@ namespace MyWorkManagerSN.Controllers.Custom
         [HttpPost]
         public JsonResult Remove(string id)
         {
-            string userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
             try
             {
                 Category categorie = new DbManager<Category>().Get(c => c.UserId == userId && c.ID == id);

@@ -6,6 +6,21 @@ namespace MyWorkManagerSN.Web.Controllers.Custom
 {
     public class UserController : Controller
     {
+        [HttpPost]
+        public JsonResult UpdateUserTrial(string userId,string date, string userIdentityId)
+        {
+            try
+            {
+                new UserService().UpdateUserTrial(userId,date,userIdentityId);
+                return Json(new { success = true, _acts = new { title = "Mise à jour effectuée" } });
+            }
+
+            catch (Exception e)
+            {
+                return Json(new { success = false, _acts = new { title = e.Message } });
+            }
+        }
+
         public JsonResult UpdateOptions(string optionProprety, bool value)
         {
             try
