@@ -1,6 +1,6 @@
 # MyWorkManagerSN.Web
 Cette application est toujours en cours de développement.
-Elle permettra permettra aux commerçants de mieux gérer leur business.
+Elle permettra aux commerçants de mieux gérer leur business.
 L'application propose les fonctionnalités suivantes : 
 * Gestion du catalogue de produits et gestion des stocks
 * Création de commandes en renseignant le client associé
