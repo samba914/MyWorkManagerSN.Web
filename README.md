@@ -8,6 +8,7 @@ L'application propose les fonctionnalités suivantes :
 * Une vue sur la liste de tous les clients avec chacun combien il nous a rapporté
 * Edition d'un fichier excel qui comprend la liste de tous les clients avec leurs coordonnées
 * Un tableau de bord qui permet de voir l'évolution de son chiffre d'affaire sur une période sélectionnée et savoir aussi les produits les plus vendus sur cette période
+* ... 
 
 
 Ce Read Me est plus une documentation personnelle sur le code de l'application et l'utilisation de certaines méthodes. (
