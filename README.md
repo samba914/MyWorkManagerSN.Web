@@ -1,4 +1,16 @@
 # MyWorkManagerSN.Web
+Cette application est toujours en cours de développement.
+Elle permettra permettra aux commerçants de mieux gérer leur business.
+L'application propose les fonctionnalités suivantes : 
+* Gestion du catalogue de produits et gestion des stocks
+* Création de commandes en renseignant le client associé
+* Edition de factures et de devis
+* Une vue sur la liste de tous les clients avec chacun combien il nous a rapporté
+* Edition d'un fichier excel qui comprend la liste de tous les clients avec leurs coordonnées
+* Un tableau de bord qui permet de voir l'évolution de son chiffre d'affaire sur une période sélectionnée et savoir aussi les produits les plus vendus sur cette période
+
+
+Ce Read Me est plus une documentation personnelle sur le code de l'application et l'utilisation de certaines méthodes. (
 
 ### Opérations base de donnée
 La majeure partie des requêtes vers la base de données se font à travers la classe générique DBManager<T> qui se trouve dans la bibliothèque Service.
@@ -26,7 +38,7 @@ Pour ajouter un element dans la base de donnée :
 
 ### Composants Js
 #### autocomplete
-Ce composant permet d'avoir une liste de choix correspondant à un texte lorqu'on tape un texte dans un input.
+Ce composant permet d'avoir une liste de choix correspondant à un texte lorsqu'on tape un texte dans un input.
 Mode d'utilisation
 ```
   Template  : 
